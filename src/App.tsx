@@ -442,6 +442,7 @@ function App() {
                   </a>
                   <a
                     href={portfolio.links.resume}
+                    download={"Hafiz Shayan Abdullah.pdf"}
                     className="hero-cta hero-cta-link inline-flex min-h-11 items-center text-xs font-bold text-muted-foreground underline decoration-border underline-offset-4"
                   >
                     Download CV
