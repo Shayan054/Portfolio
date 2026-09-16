@@ -31,7 +31,7 @@ export const portfolio = {
   links: {
     github: 'https://github.com/shayanbaloch',
     linkedin: 'https://www.linkedin.com/in/shayanabdullahpk/',
-    resume: "/Hafiz Shayan Abdullah.pdf",
+    resume: "/Hafiz-Shayan-Abdullah.pdf",
   },
   stats: [
     { value: 'BS', label: 'Computer Science' },
