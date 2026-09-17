@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import shayan from './assets/shayan.png';
-import { motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
 import {
   ArrowDown,
@@ -353,6 +353,44 @@ function LogoMark() {
   );
 }
 
+/*
+ * Generated project visual — reused as the expanded-view cover
+ * whenever a project has no `image` set.
+ */
+function ProjectVisualFallback({ project, compact = false }: { project: Project; compact?: boolean }) {
+  return (
+    <div
+      className={
+        compact
+          ? "relative h-[220px] w-full overflow-hidden rounded-xl border border-border sm:h-[270px] lg:h-[290px]"
+          : "relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-border"
+      }
+    >
+      <div className="absolute inset-0" style={{ backgroundColor: project.accent }} />
+      <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border border-[#173c3d]/15" />
+      <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full border border-[#173c3d]/15" />
+      <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-[#173c3d]/30 bg-[#f5efe1]/90 p-3 shadow-xl shadow-[#173c3d]/10 ${compact ? "w-[64%] max-w-[500px]" : "w-[76%]"}`}>
+        <div className="flex gap-1.5 border-b border-[#173c3d]/10 pb-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/45" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/25" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/15" />
+        </div>
+        <div className="mt-3 grid grid-cols-[.65fr_1.35fr] gap-2">
+          <div className="space-y-2">
+            <div className="h-2 w-3/4 rounded bg-[#173c3d]/20" />
+            <div className="h-10 rounded-md bg-[#173c3d]/10" />
+            <div className="h-2 w-1/2 rounded bg-[#173c3d]/15" />
+          </div>
+          <div className="rounded-md bg-[#173c3d]/10 p-3">
+            <div className="h-2 w-1/2 rounded bg-[#173c3d]/25" />
+            <div className="mt-3 h-12 rounded-md border border-[#173c3d]/15" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [dark, setDark] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -361,6 +399,7 @@ function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
   const [formError, setFormError] = useState('');
   const [sent, setSent] = useState(false);
@@ -384,6 +423,30 @@ function App() {
     document.documentElement.classList.toggle('dark', dark);
     localStorage.setItem('shayan-theme', dark ? 'dark' : 'light');
   }, [dark]);
+
+  // Lock body scroll while the expanded project overlay is open.
+  useEffect(() => {
+    if (!selectedProject) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [selectedProject]);
+
+  // Reset the screenshot lightbox whenever the overlay closes/changes.
+  useEffect(() => {
+    if (!selectedProject) setLightboxImage(null);
+  }, [selectedProject]);
+
+  useEffect(() => {
+    if (!lightboxImage) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setLightboxImage(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [lightboxImage]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -910,9 +973,6 @@ function App() {
          */
         const hasDetailPage = !hasLiveDemo;
 
-        const projectDetailUrl =
-          `/projects/${project.id}`;
-
         return (
           <motion.article
             layout
@@ -993,8 +1053,9 @@ function App() {
                * Screenshot area opens
                * its project page.
                */
-              <a
-                href={projectDetailUrl}
+              <button
+                type="button"
+                onClick={() => setSelectedProject(project)}
                 className="
                   relative block
                   aspect-[16/10]
@@ -1137,7 +1198,7 @@ function App() {
 
                   <ArrowUpRight size={15} />
                 </div>
-              </a>
+              </button>
             ) : (
               /*
                * LIVE PROJECT
@@ -1145,12 +1206,16 @@ function App() {
                * Visual is presentation only.
                * It does NOT open Details.
                */
-              <div
+              <button
+                type="button"
+                onClick={() => setSelectedProject(project)}
                 className="
                   relative block
                   aspect-[16/10]
                   w-full overflow-hidden
+                  text-left
                 "
+                aria-label={`View ${project.title} project`}
               >
                 {/* ACCENT BACKGROUND */}
                 <div
@@ -1292,7 +1357,7 @@ function App() {
                     Live
                   </span>
                 </div>
-              </div>
+              </button>
             )}
 
             {/* =========================
@@ -1317,40 +1382,28 @@ function App() {
                   TITLE
               ========================== */}
 
-              {hasDetailPage ? (
-                <a
-                  href={projectDetailUrl}
-                  className="block text-left"
-                >
-                  <h3
-                    className="
-                      display
-                      text-xl
-                      font-semibold
-                      leading-[1.08]
-
-                      transition-colors
-                      duration-200
-
-                      group-hover/project:
-                      text-primary
-                    "
-                  >
-                    {project.title}
-                  </h3>
-                </a>
-              ) : (
+              <button
+                type="button"
+                onClick={() => setSelectedProject(project)}
+                className="block text-left"
+              >
                 <h3
                   className="
                     display
                     text-xl
                     font-semibold
                     leading-[1.08]
+
+                    transition-colors
+                    duration-200
+
+                    group-hover/project:
+                    text-primary
                   "
                 >
                   {project.title}
                 </h3>
-              )}
+              </button>
 
               {/* =========================
                   ONE-LINE DESCRIPTION
@@ -1371,19 +1424,20 @@ function App() {
               {/* =========================
                   TECHNOLOGIES
               ========================== */}
-              <div className="mt-4 flex flex-wrap gap-1.5">
+              <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5">
                 {project.stack
                   .slice(0, 4)
                   .map((technology) => (
                     <span
                       key={technology}
                       className="
-                        rounded-full
-                        bg-secondary
-                        px-2.5 py-1
-                        text-[9px]
-                        font-semibold
-                        text-muted-foreground
+                        mono
+                        text-[10px]
+                        font-medium
+                        tracking-[.01em]
+                        text-foreground/70
+                        [text-rendering:optimizeLegibility]
+                        antialiased
                       "
                     >
                       {technology}
@@ -1391,20 +1445,29 @@ function App() {
                   ))}
 
                 {project.stack.length > 4 ? (
-                  <span
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setSelectedProject(project);
+                    }}
                     className="
-                      rounded-full
-                      bg-secondary
-                      px-2.5 py-1
-                      text-[9px]
-                      font-semibold
-                      text-muted-foreground
+                      mono
+                      cursor-pointer
+                      text-[10px]
+                      font-medium
+                      tracking-[.01em]
+                      text-foreground/70
+                      underline-offset-2
+                      transition-colors
+                      duration-200
+                      hover:text-primary
+                      hover:underline
                     "
+                    aria-label={`View all ${project.stack.length} technologies used in ${project.title}`}
                   >
-                    +
-                    {project.stack.length -
-                      4}
-                  </span>
+                    +{project.stack.length - 4}
+                  </button>
                 ) : null}
               </div>
 
@@ -1424,8 +1487,9 @@ function App() {
                 ====================== */}
 
                 {hasDetailPage ? (
-                  <a
-                    href={projectDetailUrl}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedProject(project)}
                     className="
                       group/details
                       inline-flex
@@ -1451,7 +1515,7 @@ function App() {
                         -translate-y-0.5
                       "
                     />
-                  </a>
+                  </button>
                 ) : (
                   /* =====================
                       LIVE PROJECT
@@ -1841,55 +1905,214 @@ function App() {
         </div>
       </footer>
 
-      {selectedProject ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-[#102a2b]/75 p-5 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProject(null); }}>
-          <div role="dialog" aria-modal="true" aria-labelledby="project-dialog-title" className="max-h-[90dvh] w-full max-w-2xl overflow-auto rounded-[1.5rem] border border-border bg-card p-7 shadow-2xl sm:p-10">
-            <div className="flex items-start justify-between gap-5">
-              <div>
-                <p className="eyebrow mb-3">{selectedProject.type} / {selectedProject.year}</p>
-                <h2 id="project-dialog-title" className="display text-3xl font-semibold sm:text-4xl">{selectedProject.title}</h2>
-              </div>
-              <button type="button" onClick={() => setSelectedProject(null)} className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary" aria-label="Close project details" data-testid="button-close-project"><X size={17} /></button>
-            </div>
-            <p className="mt-7 text-base leading-8 text-muted-foreground">{selectedProject.detail}</p>
-            <div className="mt-8 grid gap-6 sm:grid-cols-2">
-              <div>
-                <p className="eyebrow mb-2">Problem</p>
-                <p className="text-sm leading-6 text-muted-foreground">{selectedProject.problem}</p>
-              </div>
-              <div>
-                <p className="eyebrow mb-2">Solution</p>
-                <p className="text-sm leading-6 text-muted-foreground">{selectedProject.solution}</p>
-              </div>
-            </div>
-            <div className="mt-8">
-              <p className="eyebrow mb-3">Technologies</p>
-              <div className="flex flex-wrap gap-2">
-                {selectedProject.stack.map((item) => <span key={item} className="rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold">{item}</span>)}
-              </div>
-            </div>
-            <div className="mt-8 grid gap-6 sm:grid-cols-2">
-              <div>
-                <p className="eyebrow mb-2">Key features</p>
-                <ul className="space-y-2 text-sm leading-6 text-muted-foreground">
-                  {selectedProject.features.map((feature) => <li key={feature}>• {feature}</li>)}
-                </ul>
-              </div>
-              <div>
-                <p className="eyebrow mb-2">Challenges</p>
-                <p className="text-sm leading-6 text-muted-foreground">{selectedProject.challenges}</p>
-              </div>
-            </div>
-            <div className="mt-9 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
-              <span className="mono text-[10px] uppercase tracking-[.14em] text-muted-foreground">A selected case study</span>
-              <div className="flex flex-wrap items-center gap-4">
-                <a href={selectedProject.github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-primary" data-testid={`link-project-${selectedProject.id}`}>GitHub <ArrowUpRight size={15} /></a>
-                <a href={selectedProject.demo} onClick={() => setSelectedProject(null)} className="inline-flex items-center gap-2 text-sm font-bold text-primary">Live Demo <ArrowUpRight size={15} /></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <AnimatePresence>
+        {selectedProject ? (
+          (() => {
+            const project = selectedProject;
+            const projectHasLiveDemo = Boolean(project.demo) && project.demo !== '#';
+            const hasScreenshots = Boolean(project.screenshots && project.screenshots.length > 0);
+
+            return (
+              <motion.div
+                key="project-overlay"
+                className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-[#102a2b]/75 p-4 backdrop-blur-sm sm:p-6 lg:p-8"
+                role="presentation"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.22, 0.8, 0.28, 1] }}
+                onMouseDown={(event) => {
+                  if (event.target === event.currentTarget) setSelectedProject(null);
+                }}
+              >
+                <motion.div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="project-dialog-title"
+                  layoutId={`project-${project.id}`}
+                  initial={{ opacity: 0, scale: 0.97, y: 16 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                  transition={{ duration: 0.3, ease: [0.22, 0.8, 0.28, 1] }}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  className="max-h-[84dvh] w-full max-w-[880px] overflow-y-auto rounded-[1.35rem] border border-border bg-card shadow-2xl"
+                >
+                  <div className="p-5 sm:p-6 lg:p-7">
+                    {/* HEADER */}
+                    <div className="flex items-start justify-between gap-5">
+                      <div>
+                        <p className="eyebrow mb-2">
+                          {project.type} / {project.year}
+                        </p>
+                        <h2 id="project-dialog-title" className="display text-2xl font-semibold sm:text-3xl">
+                          {project.title}
+                        </h2>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedProject(null)}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                        aria-label="Close project details"
+                        data-testid="button-close-project"
+                      >
+                        <X size={17} />
+                      </button>
+                    </div>
+
+                    <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">{project.summary}</p>
+
+                    {/* MAIN VISUAL */}
+                    <div className="mt-5">
+                      {project.image ? (
+                        <img
+                          src={project.image}
+                          alt={`${project.title} screenshot`}
+                          className="h-[220px] w-full rounded-xl border border-border object-cover sm:h-[270px] lg:h-[290px]"
+                        />
+                      ) : (
+                        <ProjectVisualFallback project={project} compact />
+                      )}
+                    </div>
+
+                    {/* ALL TECHNOLOGIES */}
+                    <div className="mt-6">
+                      <p className="eyebrow mb-2">Technologies</p>
+                      <div className="flex flex-wrap gap-2">
+                        {project.stack.map((item) => (
+                          <span key={item} className="rounded-full bg-secondary px-2.5 py-1 text-[10px] font-medium text-muted-foreground">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* ABOUT */}
+                    <div className="mt-6">
+                      <p className="eyebrow mb-2">About</p>
+                      <p className="text-sm leading-7 text-muted-foreground">{project.detail}</p>
+                    </div>
+
+                    <div className="mt-6 grid gap-5 sm:grid-cols-2">
+                      <div>
+                        <p className="eyebrow mb-2">Problem</p>
+                        <p className="text-sm leading-6 text-muted-foreground">{project.problem}</p>
+                      </div>
+                      <div>
+                        <p className="eyebrow mb-2">Solution</p>
+                        <p className="text-sm leading-6 text-muted-foreground">{project.solution}</p>
+                      </div>
+                    </div>
+
+                    {/* KEY FEATURES */}
+                    <div className="mt-6 grid gap-5 sm:grid-cols-2">
+                      <div>
+                        <p className="eyebrow mb-2">Key features</p>
+                        <ul className="space-y-2 text-sm leading-6 text-muted-foreground">
+                          {project.features.map((feature) => (
+                            <li key={feature}>• {feature}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="eyebrow mb-2">Challenges</p>
+                        <p className="text-sm leading-6 text-muted-foreground">{project.challenges}</p>
+                      </div>
+                    </div>
+
+                    {/* SCREENSHOT GALLERY */}
+                    {hasScreenshots ? (
+                      <div className="mt-6">
+                        <p className="eyebrow mb-2">Gallery</p>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {project.screenshots!.map((shot, shotIndex) => (
+                            <button
+                              key={shot}
+                              type="button"
+                              onClick={() => setLightboxImage(shot)}
+                              className="group/shot overflow-hidden rounded-xl border border-border"
+                            >
+                              <img
+                                src={shot}
+                                alt={`${project.title} screenshot ${shotIndex + 1}`}
+                                className="aspect-[16/10] w-full object-cover transition-transform duration-300 group-hover/shot:scale-[1.03]"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {/* FOOTER LINKS */}
+                    <div className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-5">
+                      <span className="mono text-[10px] uppercase tracking-[.14em] text-muted-foreground">A selected case study</span>
+                      <div className="flex flex-wrap items-center gap-4">
+                        {project.github ? (
+                          <a
+                            href={project.github}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 text-sm font-bold text-primary"
+                            data-testid={`link-project-${project.id}`}
+                          >
+                            GitHub <ArrowUpRight size={15} />
+                          </a>
+                        ) : null}
+                        {projectHasLiveDemo ? (
+                          <a
+                            href={project.demo}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={() => setSelectedProject(null)}
+                            className="inline-flex items-center gap-2 text-sm font-bold text-primary"
+                          >
+                            Live Project <ArrowUpRight size={15} />
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* SCREENSHOT LIGHTBOX */}
+                <AnimatePresence>
+                  {lightboxImage ? (
+                    <motion.div
+                      key="screenshot-lightbox"
+                      className="fixed inset-0 z-[60] grid place-items-center bg-[#0b1e1f]/90 p-6"
+                      role="presentation"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      onMouseDown={(event) => {
+                        if (event.target === event.currentTarget) setLightboxImage(null);
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setLightboxImage(null)}
+                        className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full border border-[#f5efe1]/30 text-[#f5efe1] transition-colors hover:border-[#f5efe1] hover:text-[#f5efe1]"
+                        aria-label="Close screenshot"
+                      >
+                        <X size={17} />
+                      </button>
+                      <motion.img
+                        src={lightboxImage}
+                        alt={`${project.title} screenshot enlarged`}
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
+                        transition={{ duration: 0.2 }}
+                        className="max-h-[85dvh] max-w-full rounded-xl object-contain shadow-2xl"
+                      />
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })()
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

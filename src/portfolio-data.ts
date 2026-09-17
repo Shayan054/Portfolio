@@ -15,6 +15,22 @@ export type Project = {
   metricLabel: string;
   github: string;
   demo: string;
+  /**
+   * Optional cover image for the project card / expanded view.
+   * If omitted, the generated mock-application visual is used as a fallback.
+   * Example: image: '/projects/saferoute/cover.png',
+   */
+  image?: string;
+  /**
+   * Optional screenshot gallery shown in the expanded project view.
+   * If omitted, the gallery section is simply hidden.
+   * Example:
+   * screenshots: [
+   *   '/projects/saferoute/01.png',
+   *   '/projects/saferoute/02.png',
+   * ],
+   */
+  screenshots?: string[];
 };
 
 export const portfolio = {
