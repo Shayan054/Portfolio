@@ -100,6 +100,27 @@ export const portfolio = {
   ],
   projects: [
     {
+      id: 'factory-management',
+      title: 'Factory Management System',
+      type: 'Full-Stack',
+      year: '2026',
+      summary: 'Full-stack business management application designed to streamline business operations, manage data, and handle day-to-day workflows.',
+      detail:
+        'A practical operations management system for organizing business data, streamlining workflows, and providing the information a growing factory needs to manage its day-to-day operations and make informed decisions.',
+      problem: 'Business operations relied heavily on manual data entry, Excel spreadsheets, and physical record-keeping, making it difficult to maintain accurate, organized, and easily accessible business information.',
+      solution: 'Developed a centralized full-stack factory management system to digitize business records, streamline operational workflows, and provide a single platform for managing and accessing business data.',
+      features: ['Order management', 'Customer management', 'Product management', 'Responsive dashboards', 'Workflow management', 'PostgreSQL-backed records'],
+
+      challenges: 'Replacing manual Excel and paper-based record-keeping with a centralized system while keeping business data organized, accessible, and easy to manage.',
+      stack: ['Django', 'React', 'PostgreSQL','TailwindCSS','Python','JavaScript'],
+      accent: '#83b6a3',
+      metric: 'API',
+      metricLabel: 'practical systems',
+      github: 'https://github.com/shayanbaloch',
+      demo: 'https://friendly-purpose-production-9a5b.up.railway.app/login',
+      image: 'projects/factory-management-project/image1.png',
+    },
+    {
       id: 'ai-customer-support',
       title: 'AI Customer Support SaaS',
       type: 'AI / ML',
@@ -118,25 +139,7 @@ export const portfolio = {
       github: 'https://github.com/shayanbaloch',
       demo: '#contact',
     },
-    {
-      id: 'factory-management',
-      title: 'Factory Management System',
-      type: 'Full-Stack',
-      year: '2026',
-      summary: 'Full-stack business management application designed to manage business operations and data.',
-      detail:
-        'A practical operations system for organizing business data, workflows, and the day-to-day information a growing factory needs to make decisions.',
-      problem: 'Business operations were spread across disconnected tools, making it difficult to maintain a dependable source of truth.',
-      solution: 'A full-stack management application with structured data, role-aware workflows, and a responsive interface for everyday operations.',
-      features: ['Business operations', 'Structured data', 'Responsive dashboards', 'Workflow management', 'PostgreSQL-backed records'],
-      challenges: 'Designing a flexible data model and keeping frequent workflows fast without hiding important operational context.',
-      stack: ['Django', 'React', 'PostgreSQL','TailwindCSS','Python','JavaScript'],
-      accent: '#83b6a3',
-      metric: 'API',
-      metricLabel: 'practical systems',
-      github: 'https://github.com/shayanbaloch',
-      demo: '',
-    },
+    
     {
       id: 'safar',
       title: 'Safar / a mobile field guide',

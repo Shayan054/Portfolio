@@ -953,7 +953,7 @@ function App() {
   {visibleProjects.length > 0 ? (
     <motion.div
       layout
-      className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+      className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
     >
       {visibleProjects.map((project, index) => {
         /*
@@ -1034,7 +1034,7 @@ function App() {
               relative
               flex h-full flex-col
               overflow-hidden
-              rounded-[1.35rem]
+              rounded-[1.6rem]
               border border-border
               bg-card
               transition-shadow duration-300
@@ -1053,152 +1053,147 @@ function App() {
                * Screenshot area opens
                * its project page.
                */
+              
+
+              
               <button
-                type="button"
-                onClick={() => setSelectedProject(project)}
-                className="
-                  relative block
-                  aspect-[16/10]
-                  w-full overflow-hidden
-                  text-left
-                "
-                aria-label={`View ${project.title} project`}
-              >
-                {/* ACCENT BACKGROUND */}
-                <div
-                  className="
-                    absolute inset-0
-                    transition-transform duration-500
-                    group-hover/project:scale-[1.03]
-                  "
-                  style={{
-                    backgroundColor:
-                      project.accent,
-                  }}
-                />
+  type="button"
+  onClick={() => setSelectedProject(project)}
+  className="
+    relative block
+    aspect-[16/10]
+    w-full overflow-hidden
+    text-left
+  "
+  aria-label={`View ${project.title} project`}
+>
+  {project.image ? (
+    /* =========================
+        REAL PROJECT SCREENSHOT
+    ========================== */
+    <img
+      src={project.image}
+      alt={`${project.title} preview`}
+      className="
+        absolute inset-0
+        h-full w-full
+        object-cover
+        object-top
+        transition-transform
+        duration-500
+        group-hover/project:scale-[1.03]
+      "
+    />
+  ) : (
+    /* =========================
+        FALLBACK VISUAL
+    ========================== */
+    <>
+      <div
+        className="
+          absolute inset-0
+          transition-transform duration-500
+          group-hover/project:scale-[1.03]
+        "
+        style={{
+          backgroundColor: project.accent,
+        }}
+      />
 
-                {/* DECORATION */}
-                <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border border-[#173c3d]/15" />
+      {/* DECORATION */}
+      <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border border-[#173c3d]/15" />
 
-                <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full border border-[#173c3d]/15" />
+      <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full border border-[#173c3d]/15" />
 
-                {/* MOCK APPLICATION WINDOW */}
-                <div
-                  className="
-                    absolute
-                    left-1/2 top-1/2
-                    w-[76%]
-                    -translate-x-1/2
-                    -translate-y-1/2
+      {/* MOCK APPLICATION WINDOW */}
+      <div
+        className="
+          absolute
+          left-1/2 top-1/2
+          w-[76%]
+          -translate-x-1/2
+          -translate-y-1/2
 
-                    rounded-xl
-                    border border-[#173c3d]/30
-                    bg-[#f5efe1]/90
+          rounded-xl
+          border border-[#173c3d]/30
+          bg-[#f5efe1]/90
+          p-3
 
-                    p-3
+          shadow-xl
+          shadow-[#173c3d]/10
 
-                    shadow-xl
-                    shadow-[#173c3d]/10
+          transition-all
+          duration-500
 
-                    transition-all
-                    duration-500
+          group-hover/project:
+          -translate-y-[52%]
 
-                    group-hover/project:
-                    -translate-y-[52%]
+          group-hover/project:
+          scale-[1.04]
+        "
+      >
+        {/* BROWSER DOTS */}
+        <div className="flex gap-1.5 border-b border-[#173c3d]/10 pb-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/45" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/25" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/15" />
+        </div>
 
-                    group-hover/project:
-                    scale-[1.04]
-                  "
-                >
-                  {/* BROWSER DOTS */}
-                  <div className="flex gap-1.5 border-b border-[#173c3d]/10 pb-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/45" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/25" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/15" />
-                  </div>
+        {/* MOCK UI */}
+        <div className="mt-3 grid grid-cols-[.65fr_1.35fr] gap-2">
+          <div className="space-y-2">
+            <div className="h-2 w-3/4 rounded bg-[#173c3d]/20" />
 
-                  {/* MOCK UI */}
-                  <div className="mt-3 grid grid-cols-[.65fr_1.35fr] gap-2">
-                    <div className="space-y-2">
-                      <div className="h-2 w-3/4 rounded bg-[#173c3d]/20" />
+            <div className="h-10 rounded-md bg-[#173c3d]/10" />
 
-                      <div className="h-10 rounded-md bg-[#173c3d]/10" />
+            <div className="h-2 w-1/2 rounded bg-[#173c3d]/15" />
+          </div>
 
-                      <div className="h-2 w-1/2 rounded bg-[#173c3d]/15" />
-                    </div>
+          <div className="rounded-md bg-[#173c3d]/10 p-3">
+            <div className="h-2 w-1/2 rounded bg-[#173c3d]/25" />
 
-                    <div className="rounded-md bg-[#173c3d]/10 p-3">
-                      <div className="h-2 w-1/2 rounded bg-[#173c3d]/25" />
+            <div className="mt-3 h-12 rounded-md border border-[#173c3d]/15" />
+          </div>
+        </div>
+      </div>
+    </>
+  )}
 
-                      <div className="mt-3 h-12 rounded-md border border-[#173c3d]/15" />
-                    </div>
-                  </div>
-                </div>
+  {/* TYPE */}
+  <div className="absolute left-4 top-4 flex items-center gap-2">
+    <span
+      className="
+        mono rounded-full
+        border border-[#173c3d]/15
+        bg-[#f5efe1]/90
+        px-2.5 py-1
+        text-[8px]
+        font-semibold uppercase
+        tracking-[.12em]
+        text-[#173c3d]
+        backdrop-blur-sm
+      "
+    >
+      {project.type}
+    </span>
+  </div>
 
-                {/* TYPE */}
-                <div className="absolute left-4 top-4 flex items-center gap-2">
-                  <span
-                    className="
-                      mono rounded-full
-                      border border-[#173c3d]/15
-                      bg-[#f5efe1]/85
-                      px-2.5 py-1
-                      text-[8px]
-                      font-semibold uppercase
-                      tracking-[.12em]
-                      text-[#173c3d]
-                      backdrop-blur-sm
-                    "
-                  >
-                    {project.type}
-                  </span>
-                </div>
-
-                {/* YEAR */}
-                <span
-                  className="
-                    mono
-                    absolute right-4 top-4
-                    rounded-full
-                    bg-[#173c3d]/85
-                    px-2.5 py-1
-                    text-[8px]
-                    tracking-[.12em]
-                    text-[#f5efe1]
-                  "
-                >
-                  {project.year}
-                </span>
-
-                {/* NON-LIVE HOVER */}
-                <div
-                  className="
-                    absolute inset-x-0 bottom-0
-
-                    flex translate-y-full
-                    items-center justify-between
-
-                    bg-[#173c3d]/92
-                    px-4 py-3
-
-                    text-[#f5efe1]
-
-                    backdrop-blur-sm
-
-                    transition-transform
-                    duration-300
-
-                    group-hover/project:
-                    translate-y-0
-                  "
-                >
-                  <span className="text-xs font-bold">
-                    View project
-                  </span>
-
-                  <ArrowUpRight size={15} />
-                </div>
-              </button>
+  {/* YEAR */}
+  <span
+    className="
+      mono
+      absolute right-4 top-4
+      rounded-full
+      bg-[#173c3d]/85
+      px-2.5 py-1
+      text-[8px]
+      tracking-[.12em]
+      text-[#f5efe1]
+    "
+  >
+    {project.year}
+  </span>
+</button>
             ) : (
               /*
                * LIVE PROJECT
@@ -1210,83 +1205,102 @@ function App() {
                 type="button"
                 onClick={() => setSelectedProject(project)}
                 className="
-                  relative block
-                  aspect-[16/10]
-                  w-full overflow-hidden
-                  text-left
+                   relative block
+  m-4 mb-0
+  aspect-[16/10]
+  w-[calc(100%-2rem)]
+  overflow-hidden
+  rounded-[1rem]
+  border border-border/70
+  bg-secondary/40
+  text-left
+  shadow-[0_8px_25px_rgba(23,60,61,0.06)]
                 "
                 aria-label={`View ${project.title} project`}
               >
-                {/* ACCENT BACKGROUND */}
-                <div
-                  className="
-                    absolute inset-0
-                    transition-transform duration-500
-                    group-hover/project:scale-[1.03]
-                  "
-                  style={{
-                    backgroundColor:
-                      project.accent,
-                  }}
-                />
+           {project.image ? (
+  /* REAL PROJECT COVER IMAGE */
+  <img
+    src={project.image}
+    alt={`${project.title} preview`}
+    className="
+        absolute inset-0
+  h-full w-full
+  object-contain
+  object-center
+  p-2
+  sm:p-3
+  transition-transform
+  duration-500
+  ease-out
+  group-hover/project:scale-[1.015]
+    "
+  />
+) : (
+  /* FALLBACK WHEN PROJECT HAS NO IMAGE */
+  <>
+    <div
+      className="
+        absolute inset-0
+        transition-transform duration-500
+        group-hover/project:scale-[1.03]
+      "
+      style={{
+        backgroundColor: project.accent,
+      }}
+    />
 
-                {/* DECORATION */}
-                <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border border-[#173c3d]/15" />
+    {/* DECORATION */}
+    <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border border-[#173c3d]/15" />
 
-                <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full border border-[#173c3d]/15" />
+    <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full border border-[#173c3d]/15" />
 
-                {/* MOCK APPLICATION WINDOW */}
-                <div
-                  className="
-                    absolute
-                    left-1/2 top-1/2
-                    w-[76%]
-                    -translate-x-1/2
-                    -translate-y-1/2
+    {/* MOCK APPLICATION WINDOW */}
+    <div
+      className="
+        absolute
+        left-1/2 top-1/2
+        w-[76%]
+        -translate-x-1/2
+        -translate-y-1/2
+        rounded-xl
+        border border-[#173c3d]/30
+        bg-[#f5efe1]/90
+        p-3
+        shadow-xl
+        shadow-[#173c3d]/10
+        transition-all
+        duration-500
+        group-hover/project:-translate-y-[52%]
+        group-hover/project:scale-[1.04]
+      "
+    >
+      {/* BROWSER DOTS */}
+      <div className="flex gap-1.5 border-b border-[#173c3d]/10 pb-2">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/45" />
+        <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/25" />
+        <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/15" />
+      </div>
 
-                    rounded-xl
-                    border border-[#173c3d]/30
-                    bg-[#f5efe1]/90
+      {/* MOCK UI */}
+      <div className="mt-3 grid grid-cols-[.65fr_1.35fr] gap-2">
+        <div className="space-y-2">
+          <div className="h-2 w-3/4 rounded bg-[#173c3d]/20" />
 
-                    p-3
+          <div className="h-10 rounded-md bg-[#173c3d]/10" />
 
-                    shadow-xl
-                    shadow-[#173c3d]/10
+          <div className="h-2 w-1/2 rounded bg-[#173c3d]/15" />
+        </div>
 
-                    transition-all
-                    duration-500
+        <div className="rounded-md bg-[#173c3d]/10 p-3">
+          <div className="h-2 w-1/2 rounded bg-[#173c3d]/25" />
 
-                    group-hover/project:
-                    -translate-y-[52%]
-
-                    group-hover/project:
-                    scale-[1.04]
-                  "
-                >
-                  {/* BROWSER DOTS */}
-                  <div className="flex gap-1.5 border-b border-[#173c3d]/10 pb-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/45" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/25" />
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/15" />
-                  </div>
-
-                  {/* MOCK UI */}
-                  <div className="mt-3 grid grid-cols-[.65fr_1.35fr] gap-2">
-                    <div className="space-y-2">
-                      <div className="h-2 w-3/4 rounded bg-[#173c3d]/20" />
-
-                      <div className="h-10 rounded-md bg-[#173c3d]/10" />
-
-                      <div className="h-2 w-1/2 rounded bg-[#173c3d]/15" />
-                    </div>
-
-                    <div className="rounded-md bg-[#173c3d]/10 p-3">
-                      <div className="h-2 w-1/2 rounded bg-[#173c3d]/25" />
-
-                      <div className="mt-3 h-12 rounded-md border border-[#173c3d]/15" />
-                    </div>
-                  </div>
-                </div>
+          <div className="mt-3 h-12 rounded-md border border-[#173c3d]/15" />
+        </div>
+      </div>
+    </div>
+  </>
+)}
 
                 {/* TYPE */}
                 <div className="absolute left-4 top-4 flex items-center gap-2">
@@ -1363,7 +1377,7 @@ function App() {
             {/* =========================
                 PROJECT INFORMATION
             ========================== */}
-            <div className="flex flex-1 flex-col p-5">
+            <div className="flex flex-1 flex-col px-6 pb-6 pt-5">
 
               {/* NUMBER */}
               <div className="mb-3 flex items-center justify-between">
@@ -1389,16 +1403,13 @@ function App() {
               >
                 <h3
                   className="
-                    display
-                    text-xl
-                    font-semibold
-                    leading-[1.08]
-
-                    transition-colors
-                    duration-200
-
-                    group-hover/project:
-                    text-primary
+                     display
+  text-[1.35rem]
+  font-semibold
+  leading-[1.1]
+  transition-colors
+  duration-200
+  group-hover/project:text-primary
                   "
                 >
                   {project.title}
@@ -1411,11 +1422,10 @@ function App() {
               <p
                 className="
                   mt-3
-                  line-clamp-2
-                  min-h-[42px]
-                  text-xs
-                  leading-5
-                  text-muted-foreground
+  line-clamp-2
+  text-[13px]
+  leading-[1.65]
+  text-muted-foreground
                 "
               >
                 {project.summary}
