@@ -1,10 +1,21 @@
-import { useEffect, useMemo, useRef, useState, type ComponentType, type FormEvent, type ReactNode } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentType,
+  type CSSProperties,
+  type FormEvent,
+  type ReactNode,
+} from 'react';
 import shayan from './assets/shayan.png';
 import { motion, useReducedMotion } from 'framer-motion';
+
 import {
   ArrowDown,
   ArrowUpRight,
   Brain,
+  BrainCircuit,
   Check,
   ChevronRight,
   Code2,
@@ -13,67 +24,106 @@ import {
   ExternalLink,
   Github,
   Layers,
+  Layers3,
   Linkedin,
   Link2,
   Mail,
   Menu,
   Moon,
   MoveUpRight,
+  Network,
   Search,
   Send,
+  ShieldCheck,
   Sun,
   Waypoints,
   Webhook,
   X,
 } from 'lucide-react';
+
 import {
   SiAngular,
   SiCplusplus,
   SiCss,
+  SiDart,
   SiDjango,
   SiDocker,
-  SiGit,
+  SiFlutter,
   SiGithub,
   SiHtml5,
   SiJavascript,
   SiLinux,
   SiPostgresql,
   SiPython,
+  SiRailway,
   SiReact,
+  SiSelenium,
   SiTailwindcss,
   SiTensorflow,
+  SiVercel,
 } from 'react-icons/si';
+
 import { portfolio, type Project } from './portfolio-data';
 
 type Filter = 'All' | Project['type'];
 type SkillGroup = (typeof portfolio.skillGroups)[number];
 
-// Maps each tech-stack item to a recognizable brand icon where one exists;
-// conceptual/unbranded technologies fall back to a restrained Lucide icon.
-const SKILL_ICON: Record<string, ComponentType<{ size?: number; className?: string; 'aria-hidden'?: boolean }>> = {
-  'C++': SiCplusplus,
-  Python: SiPython,
-  JavaScript: SiJavascript,
-  SQL: Database,
-  Django: SiDjango,
-  'Django REST Framework': Layers,
-  React: SiReact,
-  Angular: SiAngular,
-  HTML: SiHtml5,
-  CSS: SiCss,
-  'Tailwind CSS': SiTailwindcss,
-  'Machine Learning': Brain,
-  TensorFlow: SiTensorflow,
-  LangChain: Link2,
-  RAG: Search,
-  'LLM APIs': Cpu,
-  'Sentence Transformers': Waypoints,
-  Git: SiGit,
-  GitHub: SiGithub,
-  Docker: SiDocker,
-  PostgreSQL: SiPostgresql,
-  'REST APIs': Webhook,
-  Linux: SiLinux,
+// Maps each tech-stack item to a recognizable brand icon and a restrained brand color.
+type SkillIconConfig = {
+  icon: ComponentType<{
+    size?: number;
+    className?: string;
+    style?: CSSProperties;
+    'aria-hidden'?: boolean;
+  }>;
+  color: string;
+};
+
+const SKILL_ICON: Record<string, SkillIconConfig> = {
+  // Languages
+  'C++': { icon: SiCplusplus, color: '#00599C' },
+  Python: { icon: SiPython, color: '#3776AB' },
+  JavaScript: { icon: SiJavascript, color: '#D6A900' },
+  SQL: { icon: Database, color: '#336791' },
+
+  // Frontend
+  React: { icon: SiReact, color: '#149ECA' },
+  Angular: { icon: SiAngular, color: '#DD0031' },
+  'Tailwind CSS': { icon: SiTailwindcss, color: '#06B6D4' },
+  HTML: { icon: SiHtml5, color: '#E34F26' },
+  CSS: { icon: SiCss, color: '#1572B6' },
+
+  // Backend & APIs
+  Django: { icon: SiDjango, color: '#0C4B33' },
+  'Django REST Framework': { icon: Layers3, color: '#A30000' },
+  'REST APIs': { icon: Network, color: '#0F8B8D' },
+
+  // AI & Machine Learning
+  'Machine Learning': { icon: BrainCircuit, color: '#7C3AED' },
+  TensorFlow: { icon: SiTensorflow, color: '#FF6F00' },
+  LangChain: { icon: Link2, color: '#16A085' },
+  RAG: { icon: Search, color: '#2563EB' },
+  'LLM APIs': { icon: Cpu, color: '#8B5CF6' },
+  'Sentence Transformers': { icon: Waypoints, color: '#7C3AED' },
+
+  // Data, DevOps & Deployment
+  PostgreSQL: { icon: SiPostgresql, color: '#4169E1' },
+  Docker: { icon: SiDocker, color: '#2496ED' },
+  GitHub: { icon: SiGithub, color: '#24292F' },
+  Git: { icon: Github, color: '#F05032' },
+  Linux: { icon: SiLinux, color: '#D8A800' },
+  Vercel: { icon: SiVercel, color: '#181717' },
+  Railway: { icon: SiRailway, color: '#6B5DD3' },
+
+  // Mobile Development
+  Flutter: { icon: SiFlutter, color: '#02569B' },
+  Dart: { icon: SiDart, color: '#0175C2' },
+
+  // Security & Testing
+  Nmap: { icon: ShieldCheck, color: '#2563EB' },
+  'Burp Suite': { icon: ShieldCheck, color: '#F97316' },
+  Nessus: { icon: ShieldCheck, color: '#00A5B5' },
+  Selenium: { icon: SiSelenium, color: '#43B02A' },
 };
 
 // Swap this for the real photograph when it's ready — everything else (the mask,
@@ -147,12 +197,107 @@ function HeroIn({
 }
 
 const HERO_TECH_ORBITS = [
-  { Icon: SiReact, label: 'React', className: 'left-[2%] top-[18%]', duration: 9.5, distance: 7, rotate: 3, delay: 0.55 },
-  { Icon: SiPython, label: 'Python', className: 'right-[0%] top-[12%]', duration: 11, distance: 6, rotate: 2, delay: 0.62 },
-  { Icon: SiDjango, label: 'Django', className: 'left-[-2%] top-[48%]', duration: 12.5, distance: 8, rotate: 2.5, delay: 0.7 },
-  { Icon: SiAngular, label: 'Angular', className: 'right-[-4%] top-[42%]', duration: 10.5, distance: 7, rotate: 3, delay: 0.78 },
-  { Icon: SiJavascript, label: 'JavaScript', className: 'left-[8%] bottom-[22%]', duration: 13, distance: 5, rotate: 2, delay: 0.86 },
+  { Icon: SiReact, label: 'React', className: 'left-[2%] top-[18%]', duration: 9.5, distance: 7, rotate: 3, delay: 0.55, parallax: { x: 7, y: -5 } },
+  { Icon: SiPython, label: 'Python', className: 'right-[0%] top-[12%]', duration: 11, distance: 6, rotate: 2, delay: 0.62, parallax: { x: -6, y: 7 } },
+  { Icon: SiDjango, label: 'Django', className: 'left-[-2%] top-[48%]', duration: 12.5, distance: 8, rotate: 2.5, delay: 0.7, parallax: { x: 8, y: 5 } },
+  { Icon: SiAngular, label: 'Angular', className: 'right-[-4%] top-[42%]', duration: 10.5, distance: 7, rotate: 3, delay: 0.78, parallax: { x: -7, y: -6 } },
+  { Icon: SiJavascript, label: 'JavaScript', className: 'left-[8%] bottom-[22%]', duration: 13, distance: 5, rotate: 2, delay: 0.86, parallax: { x: 5, y: 8 } },
 ] as const;
+
+type ParallaxDepth = { x: number; y: number };
+
+/** Smooth mouse parallax for the hero visual — DOM transforms only, no per-frame React state. */
+function useHeroParallax(enabled: boolean) {
+  const rootRef = useRef<HTMLElement | null>(null);
+  const portraitRef = useRef<HTMLDivElement | null>(null);
+  const haloRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const bgRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    const root = rootRef.current;
+    if (!root) return;
+
+    const target = { x: 0, y: 0 };
+    const current = { x: 0, y: 0 };
+    let raf = 0;
+    let active = true;
+
+    const lerp = (from: number, to: number, t: number) => from + (to - from) * t;
+
+    const apply = (node: HTMLElement | null, depth: ParallaxDepth) => {
+      if (!node) return;
+      const x = current.x * depth.x;
+      const y = current.y * depth.y;
+      node.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
+    };
+
+    const tick = () => {
+      if (!active) return;
+      current.x = lerp(current.x, target.x, 0.08);
+      current.y = lerp(current.y, target.y, 0.08);
+
+      apply(portraitRef.current, { x: -2, y: -2 });
+      apply(haloRef.current, { x: -1.5, y: -1.2 });
+      apply(cardRef.current, { x: -3.5, y: -3.2 });
+      bgRefs.current.forEach((node, index) => {
+        const depth = index % 2 === 0 ? { x: -1.2, y: -1.6 } : { x: 1.4, y: -1.1 };
+        apply(node, depth);
+      });
+      iconRefs.current.forEach((node, index) => {
+        const depth = HERO_TECH_ORBITS[index]?.parallax ?? { x: 6, y: 6 };
+        apply(node, depth);
+      });
+
+      const settled = Math.abs(current.x - target.x) < 0.001 && Math.abs(current.y - target.y) < 0.001;
+      if (!settled || target.x !== 0 || target.y !== 0) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        raf = 0;
+      }
+    };
+
+    const ensureTick = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return;
+      const rect = root.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) return;
+      const nx = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const ny = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+      target.x = Math.max(-1, Math.min(1, nx));
+      target.y = Math.max(-1, Math.min(1, ny));
+      ensureTick();
+    };
+
+    const onLeave = () => {
+      target.x = 0;
+      target.y = 0;
+      ensureTick();
+    };
+
+    root.addEventListener('pointermove', onMove, { passive: true });
+    root.addEventListener('pointerleave', onLeave);
+    ensureTick();
+
+    return () => {
+      active = false;
+      root.removeEventListener('pointermove', onMove);
+      root.removeEventListener('pointerleave', onLeave);
+      if (raf) cancelAnimationFrame(raf);
+      [portraitRef.current, haloRef.current, cardRef.current, ...bgRefs.current, ...iconRefs.current].forEach((node) => {
+        if (node) node.style.transform = '';
+      });
+    };
+  }, [enabled]);
+
+  return { rootRef, portraitRef, haloRef, cardRef, bgRefs, iconRefs };
+}
 
 function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
   const [visible, setVisible] = useState(false);
@@ -222,6 +367,18 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [cursor, setCursor] = useState({ x: -40, y: -40, hover: false });
   const [activeSection, setActiveSection] = useState('Home');
+  const reduceMotion = useReducedMotion();
+  const [finePointer, setFinePointer] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const sync = () => setFinePointer(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  const heroParallax = useHeroParallax(Boolean(finePointer && !reduceMotion));
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -279,7 +436,7 @@ function App() {
     });
     return () => observer.disconnect();
   }, []);
-
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [techFilter, setTechFilter] = useState('All technologies');
   const visibleProjects = useMemo(
     () =>
@@ -290,6 +447,10 @@ function App() {
       ),
     [filter, techFilter],
   );
+  const activeProject =
+  visibleProjects.find((project) => project.id === activeProjectId) ??
+  visibleProjects[0] ??
+  null;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -390,13 +551,35 @@ function App() {
       </header>
 
       <main>
-        <section className="grid-paper relative overflow-x-clip border-b border-border/70" aria-labelledby="hero-title">
-          <AmbientMark className="left-[8%] top-[18%] hidden lg:block" duration={11} distance={9}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M10 3v14M3 10h14" /></svg>
-          </AmbientMark>
-          <AmbientMark className="left-[3%] bottom-[14%] hidden lg:block" duration={15} distance={7}>
-            <span className="h-1.5 w-1.5 rounded-full bg-current" />
-          </AmbientMark>
+        <section
+          ref={(node) => {
+            heroParallax.rootRef.current = node;
+          }}
+          className="grid-paper relative overflow-x-clip border-b border-border/70"
+          aria-labelledby="hero-title"
+        >
+          <div
+            ref={(node) => {
+              heroParallax.bgRefs.current[0] = node;
+            }}
+            className="pointer-events-none absolute inset-0 hidden lg:block"
+            aria-hidden="true"
+          >
+            <AmbientMark className="left-[8%] top-[18%]" duration={11} distance={9}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M10 3v14M3 10h14" /></svg>
+            </AmbientMark>
+          </div>
+          <div
+            ref={(node) => {
+              heroParallax.bgRefs.current[1] = node;
+            }}
+            className="pointer-events-none absolute inset-0 hidden lg:block"
+            aria-hidden="true"
+          >
+            <AmbientMark className="left-[3%] bottom-[14%]" duration={15} distance={7}>
+              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            </AmbientMark>
+          </div>
           <div className="section-wrap grid min-h-[calc(100dvh-72px)] items-center gap-10 py-14 lg:grid-cols-[1.12fr_.88fr] lg:gap-16 lg:py-20">
             <div className="relative z-10 max-w-2xl lg:max-w-none">
               <HeroIn delay={0} y={8}>
@@ -462,24 +645,20 @@ function App() {
             </div>
 
             <div className="relative mx-auto mb-6 flex w-full max-w-[520px] justify-center pb-8 sm:mb-0 sm:pb-4 lg:-translate-y-10">
-              {/* Soft gradient halo — restrained, not a hard glow */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute left-1/2 top-[40%] h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.16)_0%,hsl(var(--accent)/0.06)_42%,transparent_72%)] blur-2xl dark:bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,hsl(var(--accent)/0.08)_42%,transparent_72%)]"
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute left-1/2 top-[48%] h-64 w-56 -translate-x-1/2 -translate-y-1/2 rounded-[40%] bg-foreground/[0.04] blur-xl"
-              />
+              <div ref={heroParallax.haloRef} className="pointer-events-none absolute inset-0 will-change-transform" aria-hidden="true">
+                <div className="absolute left-1/2 top-[40%] h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.16)_0%,hsl(var(--accent)/0.06)_42%,transparent_72%)] blur-2xl dark:bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,hsl(var(--accent)/0.08)_42%,transparent_72%)]" />
+                <div className="absolute left-1/2 top-[48%] h-64 w-56 -translate-x-1/2 -translate-y-1/2 rounded-[40%] bg-foreground/[0.04] blur-xl" />
+              </div>
 
               <HeroIn delay={0.38} y={22} className="relative w-full">
-                <img
-                  src={PORTRAIT_SRC}
-                  alt="Shayan Baloch - Full Stack Developer"
-                  className="portrait-blend relative z-10 mx-auto h-auto max-h-[620px] w-full max-w-[500px] object-contain drop-shadow-[0_18px_32px_rgba(15,40,50,0.14)]"
-                />
+                <div ref={heroParallax.portraitRef} className="will-change-transform">
+                  <img
+                    src={PORTRAIT_SRC}
+                    alt="Shayan Baloch - Full Stack Developer"
+                    className="portrait-blend relative z-10 mx-auto h-auto max-h-[620px] w-full max-w-[500px] object-contain drop-shadow-[0_18px_32px_rgba(15,40,50,0.14)]"
+                  />
+                </div>
 
-                {/* Minimal decorative marks */}
                 <AmbientMark className="left-[4%] top-[10%] hidden text-lg sm:block" duration={9} distance={6} rotate={2}>
                   +
                 </AmbientMark>
@@ -491,27 +670,35 @@ function App() {
                   className="pointer-events-none absolute bottom-[20%] right-[6%] hidden h-1.5 w-1.5 rounded-full bg-accent/55 sm:block"
                 />
 
-                {/* Floating technology icons — desktop/tablet only */}
-                {HERO_TECH_ORBITS.map(({ Icon, label, className, duration, distance, rotate, delay }) => (
+                {HERO_TECH_ORBITS.map(({ Icon, label, className, duration, distance, rotate, delay }, index) => (
                   <HeroIn key={label} delay={delay} y={10} className={`absolute z-20 hidden sm:block ${className}`}>
-                    <AmbientMark absolute={false} duration={duration} distance={distance} rotate={rotate}>
-                      <span
-                        className="grid h-10 w-10 place-items-center rounded-2xl border border-border/80 bg-card/90 text-foreground/70 shadow-sm shadow-foreground/5 backdrop-blur-sm dark:bg-card/80"
-                        aria-label={label}
-                      >
-                        <Icon size={18} aria-hidden />
-                      </span>
-                    </AmbientMark>
+                    <div
+                      ref={(node) => {
+                        heroParallax.iconRefs.current[index] = node;
+                      }}
+                      className="will-change-transform"
+                    >
+                      <AmbientMark absolute={false} duration={duration} distance={distance} rotate={rotate}>
+                        <span
+                          className="grid h-10 w-10 place-items-center rounded-2xl border border-border/80 bg-card/90 text-foreground/70 shadow-sm shadow-foreground/5 backdrop-blur-sm dark:bg-card/80"
+                          aria-label={label}
+                        >
+                          <Icon size={18} aria-hidden />
+                        </span>
+                      </AmbientMark>
+                    </div>
                   </HeroIn>
                 ))}
               </HeroIn>
 
               <HeroIn delay={0.95} y={14} className="absolute -bottom-5 left-0 z-30 sm:-left-6">
-                <div className="rounded-2xl border border-border bg-card/95 px-4 py-3 shadow-lg shadow-foreground/[0.06] backdrop-blur-sm">
-                  <p className="mono text-[9px] uppercase tracking-[.14em] text-muted-foreground">
-                    Currently thinking about
-                  </p>
-                  <p className="mt-1 text-sm font-bold">tools that feel human</p>
+                <div ref={heroParallax.cardRef} className="will-change-transform">
+                  <div className="rounded-2xl border border-border bg-card/95 px-4 py-3 shadow-lg shadow-foreground/[0.06] backdrop-blur-sm">
+                    <p className="mono text-[9px] uppercase tracking-[.14em] text-muted-foreground">
+                      Currently thinking about
+                    </p>
+                    <p className="mt-1 text-sm font-bold">tools that feel human</p>
+                  </div>
                 </div>
               </HeroIn>
             </div>
@@ -529,7 +716,7 @@ function App() {
           <AmbientMark className="right-2 top-10 hidden sm:block" duration={17} distance={7}>
             <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.2"><circle cx="13" cy="13" r="10" /></svg>
           </AmbientMark>
-          <SectionHeading eyebrow="01 / About me" title="Computer science, product thinking, practical software." detail="The best work happens when design, code, and the reason behind both stay in the same room." />
+          <SectionHeading eyebrow="01 / About me" title="Computer science, product thinking, practical software." detail="I enjoy building software where thoughtful design meets practical engineering." />
           <div className="grid gap-12 lg:grid-cols-[1.15fr_.85fr] lg:gap-24">
             <Reveal>
               <p id="about-title" className="display max-w-2xl text-3xl font-medium leading-[1.15] sm:text-4xl">
@@ -545,8 +732,8 @@ function App() {
                 <dl className="divide-y divide-border">
                   {[
                     ['Education', 'BS Computer Science'],
-                    ['Focus', 'Full-Stack Development & AI'],
-                    ['Location', 'Pakistan'],
+                    ['Areas', 'Full-Stack Development • AI/ML • Mobile'],
+                    ['Location', 'Islamabad, Pakistan'],
                     ['Status', 'Open to opportunities'],
                   ].map(([label, value]) => (
                     <div key={label} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
@@ -568,146 +755,967 @@ function App() {
           </div>
         </section>
 
-        <section id="skills" className="scroll-mt-24 border-y border-border/70 bg-secondary/30 py-20 sm:py-28" aria-labelledby="stack-title">
+      
+        <section
+  id="work"
+  className="section-wrap scroll-mt-24 py-24 sm:py-32"
+  aria-labelledby="work-title"
+>
+  {/* =========================
+      SECTION HEADER
+  ========================== */}
+  <Reveal>
+    <div className="mb-10 grid gap-6 md:grid-cols-[1fr_380px] md:items-end">
+      <div>
+        <p className="eyebrow mb-4">
+          03 / Featured projects
+        </p>
+
+        <h2
+          id="work-title"
+          className="display text-4xl font-semibold leading-none sm:text-5xl"
+        >
+          Selected{' '}
+          <span className="italic text-primary">
+            work.
+          </span>
+        </h2>
+      </div>
+
+      <p className="max-w-sm text-sm leading-7 text-muted-foreground md:justify-self-end">
+        A selection of projects across full-stack development, AI/ML,
+        mobile applications, and software engineering.
+      </p>
+    </div>
+  </Reveal>
+
+  {/* =========================
+      FILTERS
+  ========================== */}
+  <Reveal delay={80}>
+    <div className="mb-10 flex flex-wrap items-center gap-2 border-y border-border/70 py-4">
+      {(
+        [
+          'All',
+          'AI / ML',
+          'Mobile',
+          'Full-Stack',
+          'Other',
+        ] as Filter[]
+      ).map((item) => (
+        <button
+          key={item}
+          type="button"
+          onClick={() => setFilter(item)}
+          aria-pressed={filter === item}
+          className={`
+            rounded-full border px-4 py-2
+            text-[11px] font-bold
+            transition-all duration-200
+
+            ${
+              filter === item
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-border bg-background text-muted-foreground hover:border-primary/60 hover:text-primary'
+            }
+          `}
+        >
+          {item}
+        </button>
+      ))}
+
+      {/* TECHNOLOGY FILTER */}
+      <label className="relative sm:ml-2">
+        <span className="sr-only">
+          Filter projects by technology
+        </span>
+
+        <select
+          value={techFilter}
+          onChange={(event) =>
+            setTechFilter(event.target.value)
+          }
+          className="
+            h-9 appearance-none rounded-full
+            border border-border
+            bg-background
+            px-4 pr-9
+            text-[11px] font-bold
+            outline-none
+            transition-colors
+            hover:border-primary
+            focus:border-primary
+          "
+        >
+          {[
+            'All technologies',
+            'Python',
+            'Django',
+            'React',
+            'Angular',
+            'C++',
+            'AI/ML',
+            'Flutter',
+          ].map((technology) => (
+            <option key={technology}>
+              {technology}
+            </option>
+          ))}
+        </select>
+
+        <ChevronRight
+          size={13}
+          className="
+            pointer-events-none
+            absolute right-3 top-1/2
+            -translate-y-1/2 rotate-90
+            text-muted-foreground
+          "
+        />
+      </label>
+
+      {/* PROJECT COUNT */}
+      <span className="mono ml-auto hidden text-[9px] uppercase tracking-[.14em] text-muted-foreground sm:block">
+        {visibleProjects.length}{' '}
+        {visibleProjects.length === 1
+          ? 'project'
+          : 'projects'}
+      </span>
+    </div>
+  </Reveal>
+
+  {/* =========================
+      PROJECT GRID
+  ========================== */}
+  {visibleProjects.length > 0 ? (
+    <motion.div
+      layout
+      className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {visibleProjects.map((project, index) => {
+        /*
+         * A project counts as live only if
+         * it contains a real demo URL.
+         *
+         * For non-live projects:
+         * demo: ''
+         */
+        const hasLiveDemo =
+          Boolean(project.demo) &&
+          project.demo !== '#';
+
+        /*
+         * Non-live projects receive a
+         * dedicated project/case-study page.
+         */
+        const hasDetailPage = !hasLiveDemo;
+
+        const projectDetailUrl =
+          `/projects/${project.id}`;
+
+        return (
+          <motion.article
+            layout
+            key={project.id}
+            initial={{
+              opacity: 0,
+              y: 35,
+              rotate:
+                index % 2 === 0
+                  ? -1.5
+                  : 1.5,
+              scale: 0.97,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              rotate: 0,
+              scale: 1,
+            }}
+            exit={{
+              opacity: 0,
+              y: 20,
+              scale: 0.96,
+            }}
+            transition={{
+              layout: {
+                duration: 0.4,
+                ease: [
+                  0.22,
+                  0.8,
+                  0.28,
+                  1,
+                ],
+              },
+
+              opacity: {
+                duration: 0.3,
+                delay:
+                  index * 0.04,
+              },
+
+              y: {
+                duration: 0.45,
+                delay:
+                  index * 0.04,
+              },
+
+              rotate: {
+                duration: 0.45,
+                delay:
+                  index * 0.04,
+              },
+            }}
+            whileHover={{
+              y: -6,
+            }}
+            className="
+              group/project
+              relative
+              flex h-full flex-col
+              overflow-hidden
+              rounded-[1.35rem]
+              border border-border
+              bg-card
+              transition-shadow duration-300
+              hover:shadow-xl
+              hover:shadow-foreground/[0.06]
+            "
+          >
+            {/* =========================
+                PROJECT VISUAL
+            ========================== */}
+
+            {hasDetailPage ? (
+              /*
+               * NON-LIVE PROJECT
+               *
+               * Screenshot area opens
+               * its project page.
+               */
+              <a
+                href={projectDetailUrl}
+                className="
+                  relative block
+                  aspect-[16/10]
+                  w-full overflow-hidden
+                  text-left
+                "
+                aria-label={`View ${project.title} project`}
+              >
+                {/* ACCENT BACKGROUND */}
+                <div
+                  className="
+                    absolute inset-0
+                    transition-transform duration-500
+                    group-hover/project:scale-[1.03]
+                  "
+                  style={{
+                    backgroundColor:
+                      project.accent,
+                  }}
+                />
+
+                {/* DECORATION */}
+                <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border border-[#173c3d]/15" />
+
+                <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full border border-[#173c3d]/15" />
+
+                {/* MOCK APPLICATION WINDOW */}
+                <div
+                  className="
+                    absolute
+                    left-1/2 top-1/2
+                    w-[76%]
+                    -translate-x-1/2
+                    -translate-y-1/2
+
+                    rounded-xl
+                    border border-[#173c3d]/30
+                    bg-[#f5efe1]/90
+
+                    p-3
+
+                    shadow-xl
+                    shadow-[#173c3d]/10
+
+                    transition-all
+                    duration-500
+
+                    group-hover/project:
+                    -translate-y-[52%]
+
+                    group-hover/project:
+                    scale-[1.04]
+                  "
+                >
+                  {/* BROWSER DOTS */}
+                  <div className="flex gap-1.5 border-b border-[#173c3d]/10 pb-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/45" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/25" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/15" />
+                  </div>
+
+                  {/* MOCK UI */}
+                  <div className="mt-3 grid grid-cols-[.65fr_1.35fr] gap-2">
+                    <div className="space-y-2">
+                      <div className="h-2 w-3/4 rounded bg-[#173c3d]/20" />
+
+                      <div className="h-10 rounded-md bg-[#173c3d]/10" />
+
+                      <div className="h-2 w-1/2 rounded bg-[#173c3d]/15" />
+                    </div>
+
+                    <div className="rounded-md bg-[#173c3d]/10 p-3">
+                      <div className="h-2 w-1/2 rounded bg-[#173c3d]/25" />
+
+                      <div className="mt-3 h-12 rounded-md border border-[#173c3d]/15" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* TYPE */}
+                <div className="absolute left-4 top-4 flex items-center gap-2">
+                  <span
+                    className="
+                      mono rounded-full
+                      border border-[#173c3d]/15
+                      bg-[#f5efe1]/85
+                      px-2.5 py-1
+                      text-[8px]
+                      font-semibold uppercase
+                      tracking-[.12em]
+                      text-[#173c3d]
+                      backdrop-blur-sm
+                    "
+                  >
+                    {project.type}
+                  </span>
+                </div>
+
+                {/* YEAR */}
+                <span
+                  className="
+                    mono
+                    absolute right-4 top-4
+                    rounded-full
+                    bg-[#173c3d]/85
+                    px-2.5 py-1
+                    text-[8px]
+                    tracking-[.12em]
+                    text-[#f5efe1]
+                  "
+                >
+                  {project.year}
+                </span>
+
+                {/* NON-LIVE HOVER */}
+                <div
+                  className="
+                    absolute inset-x-0 bottom-0
+
+                    flex translate-y-full
+                    items-center justify-between
+
+                    bg-[#173c3d]/92
+                    px-4 py-3
+
+                    text-[#f5efe1]
+
+                    backdrop-blur-sm
+
+                    transition-transform
+                    duration-300
+
+                    group-hover/project:
+                    translate-y-0
+                  "
+                >
+                  <span className="text-xs font-bold">
+                    View project
+                  </span>
+
+                  <ArrowUpRight size={15} />
+                </div>
+              </a>
+            ) : (
+              /*
+               * LIVE PROJECT
+               *
+               * Visual is presentation only.
+               * It does NOT open Details.
+               */
+              <div
+                className="
+                  relative block
+                  aspect-[16/10]
+                  w-full overflow-hidden
+                "
+              >
+                {/* ACCENT BACKGROUND */}
+                <div
+                  className="
+                    absolute inset-0
+                    transition-transform duration-500
+                    group-hover/project:scale-[1.03]
+                  "
+                  style={{
+                    backgroundColor:
+                      project.accent,
+                  }}
+                />
+
+                {/* DECORATION */}
+                <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border border-[#173c3d]/15" />
+
+                <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full border border-[#173c3d]/15" />
+
+                {/* MOCK APPLICATION WINDOW */}
+                <div
+                  className="
+                    absolute
+                    left-1/2 top-1/2
+                    w-[76%]
+                    -translate-x-1/2
+                    -translate-y-1/2
+
+                    rounded-xl
+                    border border-[#173c3d]/30
+                    bg-[#f5efe1]/90
+
+                    p-3
+
+                    shadow-xl
+                    shadow-[#173c3d]/10
+
+                    transition-all
+                    duration-500
+
+                    group-hover/project:
+                    -translate-y-[52%]
+
+                    group-hover/project:
+                    scale-[1.04]
+                  "
+                >
+                  {/* BROWSER DOTS */}
+                  <div className="flex gap-1.5 border-b border-[#173c3d]/10 pb-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/45" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/25" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/15" />
+                  </div>
+
+                  {/* MOCK UI */}
+                  <div className="mt-3 grid grid-cols-[.65fr_1.35fr] gap-2">
+                    <div className="space-y-2">
+                      <div className="h-2 w-3/4 rounded bg-[#173c3d]/20" />
+
+                      <div className="h-10 rounded-md bg-[#173c3d]/10" />
+
+                      <div className="h-2 w-1/2 rounded bg-[#173c3d]/15" />
+                    </div>
+
+                    <div className="rounded-md bg-[#173c3d]/10 p-3">
+                      <div className="h-2 w-1/2 rounded bg-[#173c3d]/25" />
+
+                      <div className="mt-3 h-12 rounded-md border border-[#173c3d]/15" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* TYPE */}
+                <div className="absolute left-4 top-4 flex items-center gap-2">
+                  <span
+                    className="
+                      mono rounded-full
+                      border border-[#173c3d]/15
+                      bg-[#f5efe1]/85
+                      px-2.5 py-1
+                      text-[8px]
+                      font-semibold uppercase
+                      tracking-[.12em]
+                      text-[#173c3d]
+                      backdrop-blur-sm
+                    "
+                  >
+                    {project.type}
+                  </span>
+                </div>
+
+                {/* YEAR */}
+                <span
+                  className="
+                    mono
+                    absolute right-4 top-4
+                    rounded-full
+                    bg-[#173c3d]/85
+                    px-2.5 py-1
+                    text-[8px]
+                    tracking-[.12em]
+                    text-[#f5efe1]
+                  "
+                >
+                  {project.year}
+                </span>
+
+                {/* LIVE INDICATOR */}
+                <div
+                  className="
+                    absolute bottom-4 left-4
+
+                    flex items-center gap-2
+
+                    rounded-full
+                    bg-[#f5efe1]/90
+
+                    px-3 py-1.5
+
+                    backdrop-blur-sm
+                  "
+                >
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#173c3d] opacity-30" />
+
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#173c3d]" />
+                  </span>
+
+                  <span
+                    className="
+                      mono
+                      text-[7px]
+                      font-semibold
+                      uppercase
+                      tracking-[.1em]
+                      text-[#173c3d]
+                    "
+                  >
+                    Live
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* =========================
+                PROJECT INFORMATION
+            ========================== */}
+            <div className="flex flex-1 flex-col p-5">
+
+              {/* NUMBER */}
+              <div className="mb-3 flex items-center justify-between">
+                <span className="mono text-[9px] uppercase tracking-[.14em] text-primary">
+                  Project{' '}
+                  {String(index + 1).padStart(
+                    2,
+                    '0'
+                  )}
+                </span>
+
+                <span className="h-px w-10 bg-border" />
+              </div>
+
+              {/* =========================
+                  TITLE
+              ========================== */}
+
+              {hasDetailPage ? (
+                <a
+                  href={projectDetailUrl}
+                  className="block text-left"
+                >
+                  <h3
+                    className="
+                      display
+                      text-xl
+                      font-semibold
+                      leading-[1.08]
+
+                      transition-colors
+                      duration-200
+
+                      group-hover/project:
+                      text-primary
+                    "
+                  >
+                    {project.title}
+                  </h3>
+                </a>
+              ) : (
+                <h3
+                  className="
+                    display
+                    text-xl
+                    font-semibold
+                    leading-[1.08]
+                  "
+                >
+                  {project.title}
+                </h3>
+              )}
+
+              {/* =========================
+                  ONE-LINE DESCRIPTION
+              ========================== */}
+              <p
+                className="
+                  mt-3
+                  line-clamp-2
+                  min-h-[42px]
+                  text-xs
+                  leading-5
+                  text-muted-foreground
+                "
+              >
+                {project.summary}
+              </p>
+
+              {/* =========================
+                  TECHNOLOGIES
+              ========================== */}
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {project.stack
+                  .slice(0, 4)
+                  .map((technology) => (
+                    <span
+                      key={technology}
+                      className="
+                        rounded-full
+                        bg-secondary
+                        px-2.5 py-1
+                        text-[9px]
+                        font-semibold
+                        text-muted-foreground
+                      "
+                    >
+                      {technology}
+                    </span>
+                  ))}
+
+                {project.stack.length > 4 ? (
+                  <span
+                    className="
+                      rounded-full
+                      bg-secondary
+                      px-2.5 py-1
+                      text-[9px]
+                      font-semibold
+                      text-muted-foreground
+                    "
+                  >
+                    +
+                    {project.stack.length -
+                      4}
+                  </span>
+                ) : null}
+              </div>
+
+              {/* =========================
+                  ACTIONS
+              ========================== */}
+              <div
+                className="
+                  mt-auto
+                  flex items-center
+                  border-t border-border
+                  pt-5
+                "
+              >
+                {/* =====================
+                    NON-LIVE PROJECT
+                ====================== */}
+
+                {hasDetailPage ? (
+                  <a
+                    href={projectDetailUrl}
+                    className="
+                      group/details
+                      inline-flex
+                      items-center
+                      gap-1.5
+
+                      text-[11px]
+                      font-bold
+                      text-primary
+                    "
+                  >
+                    View Project
+
+                    <ArrowUpRight
+                      size={13}
+                      className="
+                        transition-transform
+
+                        group-hover/details:
+                        translate-x-0.5
+
+                        group-hover/details:
+                        -translate-y-0.5
+                      "
+                    />
+                  </a>
+                ) : (
+                  /* =====================
+                      LIVE PROJECT
+                  ====================== */
+                  <span
+                    className="
+                      mono
+                      text-[8px]
+                      uppercase
+                      tracking-[.12em]
+                      text-muted-foreground
+                    "
+                  >
+                    Available online
+                  </span>
+                )}
+
+                {/* RIGHT ACTIONS */}
+                <div className="ml-auto flex items-center gap-2">
+
+                  {/* GITHUB */}
+                  {project.github ? (
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="
+                        grid h-8 w-8
+                        place-items-center
+
+                        rounded-full
+                        border border-border
+
+                        text-muted-foreground
+
+                        transition-all
+                        duration-200
+
+                        hover:border-primary
+                        hover:bg-primary
+                        hover:text-primary-foreground
+                      "
+                      aria-label={`${project.title} GitHub repository`}
+                    >
+                      <Github size={14} />
+                    </a>
+                  ) : null}
+
+                  {/* LIVE DEMO */}
+                  {hasLiveDemo ? (
+                    <a
+                      href={project.demo}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="
+                        inline-flex
+                        h-8
+                        items-center
+                        gap-1.5
+
+                        rounded-full
+                        border border-border
+
+                        px-3
+
+                        text-[10px]
+                        font-bold
+
+                        transition-all
+                        duration-200
+
+                        hover:border-primary
+                        hover:bg-primary
+                        hover:text-primary-foreground
+                      "
+                    >
+                      Live
+
+                      <ExternalLink
+                        size={11}
+                      />
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </motion.article>
+        );
+      })}
+    </motion.div>
+  ) : (
+    /* =========================
+        EMPTY FILTER STATE
+    ========================== */
+    <div className="rounded-2xl border border-dashed border-border py-16 text-center">
+      <p className="text-sm font-semibold">
+        No projects found.
+      </p>
+
+      <p className="mt-2 text-xs text-muted-foreground">
+        Try another category or technology.
+      </p>
+
+      <button
+        type="button"
+        onClick={() => {
+          setFilter('All');
+          setTechFilter(
+            'All technologies'
+          );
+        }}
+        className="mt-5 text-xs font-bold text-primary underline underline-offset-4"
+      >
+        Reset filters
+      </button>
+    </div>
+  )}
+</section>
+        <section
+          id="skills"
+          className="scroll-mt-24 border-y border-border/70 bg-secondary/30 py-20 sm:py-24"
+          aria-labelledby="stack-title"
+        >
           <div className="section-wrap">
             <Reveal>
-              <div className="grid gap-10 md:grid-cols-[.65fr_1.35fr] md:items-start">
+              <div className="mb-12 grid gap-6 md:grid-cols-2 md:items-end">
                 <div>
                   <p className="eyebrow mb-4">02 / Tech stack</p>
-                  <h2 id="stack-title" className="display max-w-sm text-4xl font-semibold leading-none sm:text-5xl">The tools behind the thinking.</h2>
-                  <p className="mt-6 max-w-sm text-sm leading-7 text-muted-foreground">Technologies I use to build and experiment with software.</p>
+                  <h2
+                    id="stack-title"
+                    className="display max-w-xl text-4xl font-semibold leading-none sm:text-5xl"
+                  >
+                    The tools behind the thinking.
+                  </h2>
                 </div>
-                <div className="relative divide-y divide-border border-y border-border">
-                  <AmbientMark className="-top-10 right-2 hidden text-2xl sm:block" duration={16} distance={6}>
-                    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" strokeWidth="1">
-                      <circle cx="4" cy="4" r="1.4" /><circle cx="15" cy="4" r="1.4" /><circle cx="26" cy="4" r="1.4" />
-                      <circle cx="4" cy="15" r="1.4" /><circle cx="15" cy="15" r="1.4" /><circle cx="26" cy="15" r="1.4" />
-                    </svg>
-                  </AmbientMark>
-                  {portfolio.skillGroups.map((group: SkillGroup, groupIndex: number) => (
-                    <div key={group.name} className="py-6 first:pt-0 last:pb-0">
-                      <div className="mb-4 flex items-center justify-between">
-                        <p className="mono text-[10px] uppercase tracking-[.16em] text-muted-foreground">{group.name}</p>
-                        <span className="mono text-[9px] uppercase tracking-[.14em] text-muted-foreground">0{groupIndex + 1}</span>
+
+                <p className="max-w-md text-sm leading-7 text-muted-foreground md:justify-self-end">
+                  Technologies I use to build, experiment with, deploy, and explore
+                  different areas of software.
+                </p>
+              </div>
+            </Reveal>
+
+            <Reveal>
+              <div className="relative grid gap-4 md:grid-cols-12">
+                <AmbientMark
+                  className="-top-10 right-2 hidden text-2xl sm:block"
+                  duration={16}
+                  distance={6}
+                >
+                  <svg
+                    width="30"
+                    height="30"
+                    viewBox="0 0 30 30"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                  >
+                    <circle cx="4" cy="4" r="1.4" />
+                    <circle cx="15" cy="4" r="1.4" />
+                    <circle cx="26" cy="4" r="1.4" />
+                    <circle cx="4" cy="15" r="1.4" />
+                    <circle cx="15" cy="15" r="1.4" />
+                    <circle cx="26" cy="15" r="1.4" />
+                  </svg>
+                </AmbientMark>
+
+                {portfolio.skillGroups.map((group: SkillGroup, groupIndex: number) => {
+                  const widths = [
+                    'md:col-span-4',
+                    'md:col-span-4',
+                    'md:col-span-4',
+                    'md:col-span-6',
+                    'md:col-span-6',
+                    'md:col-span-4',
+                    'md:col-span-8',
+                  ];
+
+                  return (
+                    <motion.div
+                      key={group.name}
+                      initial={{ opacity: 0, y: 14 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: '-40px' }}
+                      transition={{
+                        delay: groupIndex * 0.06,
+                        duration: 0.4,
+                        ease: 'easeOut',
+                      }}
+                      className={`
+                        ${widths[groupIndex] ?? 'md:col-span-4'}
+                        rounded-2xl border border-border bg-background/75 p-5
+                        shadow-[0_4px_20px_rgba(0,0,0,0.015)]
+                        transition-all duration-300
+                        hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md
+                      `}
+                    >
+                      <div className="mb-5 flex items-center justify-between border-b border-border pb-3">
+                        <p className="mono text-[10px] font-bold uppercase tracking-[.16em] text-primary">
+                          {group.name}
+                        </p>
+                        <span className="mono text-[9px] text-muted-foreground">
+                          0{groupIndex + 1}
+                        </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-x-3 gap-y-1 sm:grid-cols-3 lg:grid-cols-4">
+
+                      <div className="grid grid-cols-1 gap-2 min-[430px]:grid-cols-2">
                         {group.items.map((item, itemIndex) => {
-                          const Icon = SKILL_ICON[item] ?? Code2;
+                          const skill = SKILL_ICON[item];
+                          const Icon = skill?.icon ?? Code2;
+                          const iconColor = skill?.color ?? '#238783';
+
                           return (
                             <motion.div
                               key={item}
-                              initial={{ opacity: 0, y: 8 }}
+                              initial={{ opacity: 0, y: 6 }}
                               whileInView={{ opacity: 1, y: 0 }}
-                              viewport={{ once: true, margin: '-40px' }}
-                              transition={{ delay: itemIndex * 0.045, duration: 0.35, ease: 'easeOut' }}
-                              className="group/cell flex items-center gap-2.5 rounded-md px-2.5 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+                              viewport={{ once: true }}
+                              transition={{
+                                delay: groupIndex * 0.035 + itemIndex * 0.025,
+                                duration: 0.3,
+                                ease: 'easeOut',
+                              }}
+                              className="
+                                group/skill flex min-h-[58px] min-w-0 items-center gap-3
+                                rounded-xl border border-border/70 bg-secondary/20
+                                px-3 py-2.5 transition-all duration-200
+                                hover:-translate-y-0.5 hover:border-primary/35
+                                hover:bg-primary/[0.045] hover:shadow-sm
+                              "
                             >
-                              <Icon size={16} className="shrink-0 transition-transform group-hover/cell:-translate-y-0.5" aria-hidden />
-                              <span className="font-semibold">{item}</span>
+                              <div
+                                className="
+                                  flex h-9 w-9 shrink-0 items-center justify-center
+                                  rounded-lg bg-background shadow-sm ring-1 ring-border/60
+                                  transition-transform duration-200 group-hover/skill:scale-105
+                                "
+                              >
+                                <Icon
+                                  size={20}
+                                  style={{ color: iconColor }}
+                                  className="transition-transform duration-200 group-hover/skill:scale-110"
+                                  aria-hidden
+                                />
+                              </div>
+
+                              <span
+                                className="
+                                  min-w-0 text-[11px] font-semibold leading-[1.3]
+                                  text-foreground/75 transition-colors duration-200
+                                  group-hover/skill:text-foreground
+                                "
+                              >
+                                {item}
+                              </span>
                             </motion.div>
                           );
                         })}
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             </Reveal>
-          </div>
-        </section>
-
-        <section id="work" className="section-wrap scroll-mt-24 py-24 sm:py-32" aria-labelledby="work-title">
-          <SectionHeading eyebrow="03 / Featured projects" title="A few things I’ve helped make more useful." detail="A selection of projects I&apos;ve built across web development, AI, and software engineering." />
-          <div className="mb-8 flex flex-wrap items-center gap-2">
-            {(['All', 'Web', 'AI / ML', 'Mobile', 'Backend', 'Other'] as Filter[]).map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setFilter(item)}
-                className={`rounded-full border px-4 py-2 text-xs font-bold transition-all ${filter === item ? 'border-primary bg-primary text-primary-foreground' : 'border-border text-muted-foreground hover:border-primary hover:text-primary'}`}
-                aria-pressed={filter === item}
-                data-testid={`button-filter-${item.toLowerCase()}`}
-              >
-                {item}
-              </button>
-            ))}
-            <label className="relative ml-0 sm:ml-2">
-              <span className="sr-only">Filter projects by technology</span>
-              <select
-                value={techFilter}
-                onChange={(event) => setTechFilter(event.target.value)}
-                className="h-9 appearance-none rounded-full border border-border bg-background px-4 pr-9 text-xs font-bold outline-none transition-colors hover:border-primary focus:border-primary"
-                data-testid="select-project-technology"
-              >
-                {['All technologies', 'Python', 'Django', 'React', 'Angular', 'C++', 'AI/ML', 'Flutter'].map((technology) => (
-                  <option key={technology}>{technology}</option>
-                ))}
-              </select>
-              <ChevronRight size={13} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-muted-foreground" />
-            </label>
-            <span className="mono ml-auto hidden text-[10px] uppercase tracking-[.14em] text-muted-foreground sm:block">{visibleProjects.length} case studies</span>
-          </div>
-          <div className="relative grid auto-rows-fr gap-6 md:grid-cols-2">
-            <AmbientMark className="-top-8 right-4 text-xl" duration={15} distance={5}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M10 3v14M3 10h14" /></svg>
-            </AmbientMark>
-            {visibleProjects.map((project, index) => {
-              const isFeatured = project.id === FEATURED_PROJECT_ID;
-              return (
-              <Reveal key={project.id} delay={index * 80} className={`h-full ${isFeatured ? 'md:col-span-2' : ''}`}>
-                <article className="project-card group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card" data-testid={`card-project-${project.id}`}>
-                  <div className={`grid h-full ${isFeatured ? 'lg:grid-cols-[1.1fr_.9fr]' : 'sm:grid-cols-[.95fr_1.05fr]'}`}>
-                    <div className={`project-visual relative min-h-[260px] overflow-hidden p-7 sm:p-9 ${isFeatured ? 'lg:min-h-[360px]' : ''}`} style={{ backgroundColor: project.accent }}>
-                      <div className="absolute right-[-15%] top-[-25%] h-64 w-64 rounded-full border border-[#173c3d]/20" />
-                      <div className="absolute bottom-[-35%] left-[-10%] h-72 w-72 rounded-full border border-[#173c3d]/20" />
-                      <div className="relative z-10 flex items-start justify-between text-[#173c3d]">
-                        <span className="mono text-[10px] uppercase tracking-[.16em]">{project.type} / {project.year}</span>
-                        <ExternalLink size={17} strokeWidth={1.7} />
-                      </div>
-                      <div className="relative z-10 flex h-48 items-center justify-center sm:h-56">
-                        <div className="project-visual w-[78%] rounded-xl border-2 border-[#173c3d]/70 bg-[#f3ebd8]/70 p-3 shadow-2xl shadow-[#173c3d]/10">
-                          <div className="flex gap-1.5 border-b border-[#173c3d]/15 pb-2">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/50" /><span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/30" /><span className="h-1.5 w-1.5 rounded-full bg-[#173c3d]/20" />
-                          </div>
-                          <div className="mt-3 grid grid-cols-[1fr_1.8fr] gap-2">
-                            <div className="space-y-2"><div className="h-2 w-4/5 rounded bg-[#173c3d]/20" /><div className="h-12 rounded bg-[#173c3d]/10" /><div className="h-2 w-3/5 rounded bg-[#173c3d]/20" /></div>
-                            <div className="rounded bg-[#173c3d]/15 p-3"><div className="h-2 w-1/2 rounded bg-[#173c3d]/30" /><div className="mt-4 h-16 rounded-full border-[7px] border-[#173c3d]/25 border-r-[#173c3d]/70" /></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="relative z-10 flex items-end justify-between">
-                        <span className="display text-2xl font-semibold text-[#173c3d]">{project.title.split(' / ')[0]}</span>
-                        <span className="mono text-[10px] uppercase tracking-[.13em] text-[#173c3d]/70">case {index + 1}</span>
-                      </div>
-                    </div>
-                    <div className="flex h-full flex-col justify-between p-7 sm:p-9">
-                      <div>
-                        <div className="mb-4 flex items-center justify-between">
-                          <span className="eyebrow">{project.type}</span>
-                          <span className="mono text-[10px] text-muted-foreground">{project.year}</span>
-                        </div>
-                        <h3 className="display text-2xl font-semibold leading-tight sm:text-3xl">{project.title}</h3>
-                        <p className="mt-4 text-sm leading-7 text-muted-foreground">{project.summary}</p>
-                      </div>
-                      <div className="mt-auto pt-9">
-                        <div className="mb-6 flex items-end justify-between border-y border-border py-4">
-                          <span className="display text-3xl font-semibold text-primary">{project.metric}</span>
-                          <span className="mono max-w-[130px] text-right text-[9px] uppercase leading-4 tracking-[.11em] text-muted-foreground">{project.metricLabel}</span>
-                        </div>
-                         <div className="flex flex-wrap items-center gap-4">
-                           <button type="button" onClick={() => setSelectedProject(project)} className="group/btn inline-flex items-center gap-2 text-sm font-bold text-primary" data-testid={`button-details-${project.id}`}>
-                             View Details <ArrowUpRight size={15} className="transition-transform group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1" />
-                           </button>
-                           <a href={project.github} target="_blank" rel="noreferrer" className="text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">GitHub</a>
-                           <a href={project.demo} className="text-xs font-bold text-muted-foreground transition-colors hover:text-foreground">Live Demo</a>
-                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </Reveal>
-              );
-            })}
           </div>
         </section>
 

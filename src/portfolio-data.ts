@@ -1,7 +1,7 @@
 export type Project = {
   id: string;
   title: string;
-  type: 'Web' | 'AI / ML' | 'Mobile' | 'Backend' | 'Other';
+  type: 'AI / ML' | 'Mobile' | 'Full-Stack' | 'Other';
   year: string;
   summary: string;
   detail: string;
@@ -25,7 +25,7 @@ export const portfolio = {
   intro:
     'Computer Science graduate building full-stack applications and AI-powered software that solve real-world problems.',
   about:
-    'I am a Computer Science graduate interested in software development, full-stack development, and AI/ML. I enjoy turning ideas into practical applications that solve real problems, from thoughtful interfaces to reliable APIs and data-backed systems.',
+    'I am a Computer Science graduate interested in software development, full-stack development, AI/ML, and mobile applications. I enjoy building practical software that solves real problems, from thoughtful interfaces and reliable APIs to LLM-powered applications and RAG systems.',
   email: 'hello@shayanbaloch.dev',
   phone: '+92 300 0000000',
   links: {
@@ -35,9 +35,9 @@ export const portfolio = {
   },
   stats: [
     { value: 'BS', label: 'Computer Science' },
-    { value: '16+', label: 'core technologies' },
-    { value: 'AI', label: 'focus area' },
-    { value: 'Open', label: 'to opportunities' },
+    { value: 'Web', label: 'Full-Stack Development' },
+    { value: 'AI', label: 'LLMs • RAG • ML • LangChain • APIs' },
+    { value: 'Mobile', label: 'Development' },
   ],
   skillGroups: [
     {
@@ -45,16 +45,41 @@ export const portfolio = {
       items: ['C++', 'Python', 'JavaScript', 'SQL'],
     },
     {
-      name: 'Web Development',
-      items: ['Django', 'Django REST Framework', 'React', 'Angular', 'HTML', 'CSS', 'Tailwind CSS'],
+      name: 'Frontend',
+      items: ['React', 'Angular', 'Tailwind CSS', 'HTML', 'CSS'],
     },
     {
-      name: 'AI / ML',
-      items: ['Machine Learning', 'TensorFlow', 'LangChain', 'RAG', 'LLM APIs', 'Sentence Transformers'],
+      name: 'Backend & APIs',
+      items: ['Django', 'Django REST Framework', 'REST APIs'],
     },
     {
-      name: 'Tools & Technologies',
-      items: ['Git', 'GitHub', 'Docker', 'PostgreSQL', 'REST APIs', 'Linux'],
+      name: 'AI & Machine Learning',
+      items: [
+        'Machine Learning',
+        'TensorFlow',
+        'LangChain',
+        'RAG',
+        'LLM APIs',
+      ],
+    },
+    {
+      name: 'Data, DevOps & Deployment',
+      items: [
+        'PostgreSQL',
+        'Docker',
+        'GitHub',
+        'Linux',
+        'Vercel',
+        'Railway',
+      ],
+    },
+    {
+      name: 'Mobile Development',
+      items: ['Flutter', 'Dart'],
+    },
+    {
+      name: 'Security & Testing',
+      items: ['Nmap', 'Burp Suite', 'Nessus', 'Selenium'],
     },
   ],
   projects: [
@@ -79,9 +104,9 @@ export const portfolio = {
     },
     {
       id: 'factory-management',
-      title: 'Factory / Business Management Project',
-      type: 'Backend',
-      year: '2023',
+      title: 'Factory Management System',
+      type: 'Full-Stack',
+      year: '2026',
       summary: 'Full-stack business management application designed to manage business operations and data.',
       detail:
         'A practical operations system for organizing business data, workflows, and the day-to-day information a growing factory needs to make decisions.',
@@ -89,12 +114,12 @@ export const portfolio = {
       solution: 'A full-stack management application with structured data, role-aware workflows, and a responsive interface for everyday operations.',
       features: ['Business operations', 'Structured data', 'Responsive dashboards', 'Workflow management', 'PostgreSQL-backed records'],
       challenges: 'Designing a flexible data model and keeping frequent workflows fast without hiding important operational context.',
-      stack: ['Django', 'React', 'PostgreSQL'],
+      stack: ['Django', 'React', 'PostgreSQL','TailwindCSS','Python','JavaScript'],
       accent: '#83b6a3',
       metric: 'API',
       metricLabel: 'practical systems',
       github: 'https://github.com/shayanbaloch',
-      demo: '#contact',
+      demo: '',
     },
     {
       id: 'safar',
