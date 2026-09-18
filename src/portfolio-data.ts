@@ -120,25 +120,51 @@ export const portfolio = {
       demo: 'https://friendly-purpose-production-9a5b.up.railway.app/login',
       image: 'projects/factory-management-project/image1.png',
     },
-    {
-      id: 'ai-customer-support',
-      title: 'AI Customer Support SaaS',
-      type: 'AI / ML',
-      year: '2024',
-      summary: 'An AI-powered customer support platform with document-based RAG, conversational support, source citations, conversation history, support tickets, and human handoff.',
-      detail:
-        'A support workspace that helps teams answer questions from their own knowledge base while keeping the human support path visible and easy to reach.',
-      problem: 'Support teams were spending too much time searching internal documents and repeating answers across conversations.',
-      solution: 'A searchable knowledge layer powered by retrieval-augmented generation, with citations and a handoff path when automation should stop.',
-      features: ['Document-based RAG', 'Source citations', 'Conversation history', 'Support tickets', 'Human handoff'],
-      challenges: 'Balancing helpful AI responses with transparent sources, predictable failure states, and a clear escalation path.',
-      stack: ['Angular', 'Django', 'DRF', 'PostgreSQL', 'pgvector', 'Groq', 'Sentence Transformers', 'AI/ML'],
-      accent: '#e3a36b',
-      metric: 'RAG',
-      metricLabel: 'grounded answers',
-      github: 'https://github.com/shayanbaloch',
-      demo: '#contact',
-    },
+    
+      {
+        id: 'ai-customer-support',
+        title: 'AI Customer Support SaaS',
+        type: 'AI / ML',
+        year: '2026',
+        summary: 'AI-powered customer support SaaS platform designed to help businesses provide contextual support using their own knowledge and documentation.',
+        detail:
+          'A multi-business customer support platform that enables companies to create dedicated support workspaces, manage business knowledge, configure AI-assisted support, and handle customer conversations through a modern customer-facing interface and business dashboard.',
+        problem:
+          'Businesses often rely on scattered FAQs, policy documents, and support resources, making it difficult to provide customers with fast, consistent, and context-aware answers.',
+        solution:
+          'Developing a centralized AI customer support platform where businesses can manage their support knowledge and customer interactions, with an AI layer designed to retrieve relevant business context and generate more accurate, company-specific responses.',
+        features: [
+          'AI-powered customer support',
+          'Business workspaces',
+          'Customer chat interface',
+          'Knowledge base management',
+          'Conversation management',
+          'AI configuration',
+          'Support analytics dashboard',
+          'Responsive SaaS interface'
+        ],
+        challenges:
+          'Designing a scalable multi-business support architecture that can combine company-specific knowledge retrieval, AI-generated responses, customer conversations, and business management tools while keeping each company’s data isolated.',
+        stack: [
+          'Angular',
+          'TypeScript',
+          'Django',
+          'Django REST Framework',
+          'PostgreSQL',
+          'pgvector',
+          'Groq API',
+          'TailwindCSS',
+          'Python',
+          'RAG',
+          'LLM'
+        ],
+        accent: '#38bdf8',
+        metric: 'AI',
+        metricLabel: 'support platform',
+        github: 'https://github.com/Shayan054/Ai-Customer-Support-Saas',
+        demo: 'https://ai-customer-support-saas-ashen.vercel.app/',
+        image: 'projects/ai-customer-support-saas/image1.png',
+      },
     {
       id: 'Ajaia-Docs',
     
