@@ -1,7 +1,7 @@
 export type Project = {
   id: string;
   title: string;
-  type: 'AI / ML' | 'Mobile' | 'Full-Stack' | 'Other';
+  type: 'Web' |'AI / ML' | 'Mobile'  | 'Other';
   year: string;
   summary: string;
   detail: string;
@@ -42,10 +42,10 @@ export const portfolio = {
     'Computer Science graduate building full-stack applications and AI-powered software that solve real-world problems.',
   about:
     'I am a Computer Science graduate interested in software development, full-stack development, AI/ML, and mobile applications. I enjoy building practical software that solves real problems, from thoughtful interfaces and reliable APIs to LLM-powered applications and RAG systems.',
-  email: 'hello@shayanbaloch.dev',
-  phone: '+92 300 0000000',
+  email: 'shayanabdullah89@gmail.com',
+  phone: '+92 307 0870604',
   links: {
-    github: 'https://github.com/shayanbaloch',
+    github: 'https://github.com/Shayan054',
     linkedin: 'https://www.linkedin.com/in/shayanabdullahpk/',
     resume: "/Hafiz-Shayan-Abdullah.pdf",
   },
@@ -102,7 +102,7 @@ export const portfolio = {
     {
       id: 'factory-management',
       title: 'Factory Management System',
-      type: 'Full-Stack',
+      type: 'Web',
       year: '2026',
       summary: 'Full-stack business management application designed to streamline business operations, manage data, and handle day-to-day workflows.',
       detail:
@@ -116,7 +116,7 @@ export const portfolio = {
       accent: '#83b6a3',
       metric: 'API',
       metricLabel: 'practical systems',
-      github: 'https://github.com/shayanbaloch',
+      github: 'https://github.com/Shayan054/factory-project',
       demo: 'https://friendly-purpose-production-9a5b.up.railway.app/login',
       image: 'projects/factory-management-project/image1.png',
     },
@@ -139,51 +139,118 @@ export const portfolio = {
       github: 'https://github.com/shayanbaloch',
       demo: '#contact',
     },
-    
     {
-      id: 'safar',
-      title: 'Safar / a mobile field guide',
-      type: 'Mobile',
-      year: '2023',
-      summary: 'A lightweight mobile companion for finding local routes, stories, and places worth slowing down for.',
+      id: 'Ajaia-Docs',
+    
+      title: 'Ajaia Docs',
+    
+      type: 'Web',
+    
+      year: '2026',
+    
+      summary: 'A collaborative document management and editing platform with authentication, sharing, and Markdown-based workflows.',
+    
       detail:
-        'Safar was designed around intermittent connectivity and one-handed use. The result is an offline-first mobile experience with map primitives, saved itineraries, and a small editorial layer for context.',
-      problem: 'People needed a lightweight way to discover and save local routes while away from reliable connectivity.',
-      solution: 'An offline-first mobile experience that keeps the useful parts of a field guide close at hand.',
-      features: ['Phone-first interface', 'Offline-friendly flows', 'Saved itineraries', 'Map primitives', 'Editorial context'],
-      challenges: 'Keeping the experience useful and calm on a small screen while accounting for intermittent connectivity.',
-      stack: ['Flutter', 'Dart', 'SQLite', 'Maps'],
-      accent: '#d8bd68',
-      metric: 'UX',
-      metricLabel: 'mobile-first',
-      github: 'https://github.com/shayanbaloch',
-      demo: '#contact',
+        'Ajaia Docs was built as a full-stack collaborative document platform featuring user authentication, document creation and editing, file import, sharing with editor permissions, persistent storage, and Markdown export. The project focuses on clean document workflows while demonstrating a complete React and Django-based application architecture.',
+    
+      problem: 'Managing documents across different formats and collaborating with other users can become fragmented without a simple platform that combines editing, sharing, and document organization.',
+    
+      solution: 'A full-stack document platform that allows users to create, edit, import, organize, share, and export documents while maintaining ownership and access permissions.',
+      image: 'projects/ajaia-docs/image1.png',
+
+      features: [
+        'Document creation and editing',
+        'Rich-text document editor',
+        'TXT and Markdown import',
+        'Document sharing with editor permissions',
+        'Owned and shared document views',
+        'Markdown export',
+        'User authentication',
+        'Persistent document storage',
+        'Demo user accounts'
+      ],
+    
+      challenges: 'Designing a reliable full-stack document workflow while handling authentication, document ownership, sharing permissions, file imports, and persistent data across the frontend and backend.',
+    
+      stack: ['React', 'Vite', 'Django', 'Django REST Framework', 'SQLite', 'JavaScript', 'Markdown'],
+    
+      accent: '#7c6f9f',
+    
+      metric: '12/12',
+    
+      metricLabel: 'tests passing',
+    
+      github: 'https://github.com/Shayan054/ajaia-docs',
+    
+      demo: 'https://ajaia-docs-flax.vercel.app/',
+    },
+    {
+      id: 'Geo-Vista',
+    
+      title: 'Geo Vista',
+    
+      type: 'Web',
+    
+      year: '2026',
+    
+      summary: 'An interactive Web GIS application for exploring maps, geospatial data, and practical GIS concepts.',
+    
+      detail:
+        'Geo Vista was built as a lightweight browser-based GIS experience using JavaScript and open-source mapping libraries. It brings together interactive maps, geospatial data, layer management, measurement tools, and client-side spatial analysis in a single web application.',
+    
+      problem: 'Understanding GIS concepts can be difficult without an interactive environment where spatial data and mapping operations can be explored visually.',
+    
+      solution: 'An interactive Web GIS application that demonstrates practical geospatial concepts through maps, data layers, spatial measurements, and client-side analysis.',
+      image: 'projects/geo-vista/image1.png',
+
+      features: [
+        'Interactive maps',
+        'GeoJSON data visualization',
+        'Layer management',
+        'Distance and area measurement',
+        'Spatial analysis',
+        'Map markers and drawing tools'
+      ],
+    
+      challenges: 'Building useful GIS functionality entirely on the client side while keeping the map experience responsive and easy to use.',
+    
+      stack: ['HTML', 'Tailwind CSS', 'JavaScript', 'Leaflet', 'GeoJSON', 'Turf.js'],
+    
+      accent: '#6b8e7b',
+    
+      metric: 'GIS',
+    
+      metricLabel: 'interactive',
+    
+      github: 'https://github.com/Shayan054/GeoVista-',
+    
+      demo: 'https://geo-vista-nu.vercel.app/',
     },
   ] satisfies Project[],
   experience: [
     {
-      period: '2024 — now',
+      period: '2026 — now',
       role: 'Independent developer',
-      place: 'Remote · selected products & experiments',
-      text: 'Partnering with founders and small teams to turn ambiguous ideas into shippable, maintainable software.',
+      place: 'Personal projects · AI · Full-stack development',
+      text: 'Building and deploying practical software projects across Django, React, Angular, APIs, databases, and AI-powered applications.',
     },
     {
-      period: '2023 — 2024',
-      role: 'Full-stack developer',
-      place: 'Product engineering · contract',
-      text: 'Built responsive React surfaces, Node services, and the glue between user needs and technical constraints.',
+      period: 'July 2025 — August 2025',
+      role: 'VATP Intern',
+      place: 'NECOP · Internship',
+      text: 'Worked with security assessment tools and practical vulnerability testing, including Nmap, Burp Suite, and Nessus.',
     },
     {
-      period: '2019 — 2023',
+      period: '2022 — 2026',
       role: 'BS Computer Science',
-      place: 'University · Islamabad, Pakistan',
-      text: 'Studied software engineering, databases, networks, and the habit of asking better questions.',
+      place: 'Bahria University · Islamabad, Pakistan',
+      text: 'Studied computer science fundamentals while building across C++, web development, mobile applications, databases, and AI/ML.',
     },
   ],
   achievements: [
     { title: 'ICPC Regionalist', text: 'Built problem-solving fluency through competitive programming.' },
     { title: 'SOFTEC Final Round', text: 'Presented practical software work in a competitive university showcase.' },
     { title: 'Programming competitions', text: 'Kept sharpening algorithms, debugging, and collaboration under time pressure.' },
-    { title: 'Certifications & internships', text: 'Continued learning through structured study and hands-on project work.' },
+    { title: 'Certifications & internship', text: 'Continued learning through structured study and hands-on project work.' },
   ],
 };

@@ -6,6 +6,7 @@ import {
   type ComponentType,
   type CSSProperties,
   type FormEvent,
+  type MouseEvent,
   type ReactNode,
 } from 'react';
 import shayan from './assets/shayan.png';
@@ -128,6 +129,39 @@ const SKILL_ICON: Record<string, SkillIconConfig> = {
 
 // Swap this for the real photograph when it's ready — everything else (the mask,
 // fade, and floating marks) is built to work with any upright portrait crop.
+const BUG_HUNT_SCENES = [
+  {
+    title: 'Broken checkout',
+    hint: 'Something about the order total looks impossible.',
+    bug: 'total',
+    explanation: 'The total is showing $NaN — a classic sign that a calculation received an invalid value.',
+  },
+  {
+    title: 'Inbox trouble',
+    hint: 'One notification value should never exist in a real inbox.',
+    bug: 'badge',
+    explanation: 'A notification count cannot be negative. The badge showing -3 is the bug.',
+  },
+  {
+    title: 'Analytics drift',
+    hint: 'Compare the metric with the progress bar underneath it.',
+    bug: 'progress',
+    explanation: 'The dashboard says 82% complete, but the progress bar is almost empty. The visual state does not match the data.',
+  },
+  {
+    title: 'Navigation mix-up',
+    hint: 'One navigation item clearly does not belong in this dashboard.',
+    bug: 'nav',
+    explanation: '“Delete account” should not appear as a primary navigation destination between normal product pages.',
+  },
+  {
+    title: 'Production status',
+    hint: 'The status message and its action contradict each other.',
+    bug: 'status',
+    explanation: 'The service says “All systems operational” while simultaneously showing a critical outage action. Those states conflict.',
+  },
+] as const;
+
 const PORTRAIT_SRC = shayan;
 
 // The one project that should always render large, regardless of which
@@ -403,11 +437,16 @@ function App() {
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
   const [formError, setFormError] = useState('');
   const [sent, setSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [cursor, setCursor] = useState({ x: -40, y: -40, hover: false });
   const [activeSection, setActiveSection] = useState('Home');
   const reduceMotion = useReducedMotion();
   const [finePointer, setFinePointer] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameIndex, setGameIndex] = useState(0);
+  const [gameResult, setGameResult] = useState<'correct' | 'wrong' | null>(null);
+  const [gameFinished, setGameFinished] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -515,18 +554,51 @@ function App() {
   visibleProjects[0] ??
   null;
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError('');
+
     if (!formState.name.trim() || !formState.email.trim() || !formState.message.trim()) {
       setFormError('Please fill in your name, email, and a short note.');
       return;
     }
+
     if (!/^\S+@\S+\.\S+$/.test(formState.email)) {
       setFormError('That email address does not look quite right.');
       return;
     }
-    setSent(true);
+
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+    if (!accessKey) {
+      setFormError('The contact form is not configured yet. Please use the email link instead.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: accessKey,
+          subject: `Portfolio message from ${formState.name.trim()}`,
+          name: formState.name.trim(),
+          email: formState.email.trim(),
+          message: formState.message.trim(),
+          botcheck: '',
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Message could not be sent.');
+      setSent(true);
+    } catch (error) {
+      console.error('Contact form submission failed:', error);
+      setFormError('Could not send your message. Please try again or email me directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const closeMobile = () => setMobileOpen(false);
@@ -538,6 +610,20 @@ function App() {
     ['Experience', '#experience'],
     ['Contact', '#contact'],
   ];
+
+
+  const handleWrongBugGuess = () => {
+    if (gameResult === 'correct') return;
+    setGameResult('wrong');
+    window.setTimeout(() => {
+      setGameResult((current) => (current === 'wrong' ? null : current));
+    }, 900);
+  };
+
+  const handleBugFound = (event: MouseEvent) => {
+    event.stopPropagation();
+    setGameResult('correct');
+  };
 
   return (
     <div id="top" className="soft-noise min-h-[100dvh] overflow-x-hidden">
@@ -862,7 +948,7 @@ function App() {
           'All',
           'AI / ML',
           'Mobile',
-          'Full-Stack',
+          'Web',
           'Other',
         ] as Filter[]
       ).map((item) => (
@@ -1822,30 +1908,111 @@ function App() {
                       </div>
                     ))}
                   </div>
-                  <a href={portfolio.links.github} target="_blank" rel="noreferrer" className="mt-9 flex items-center justify-between border-t border-border pt-5 text-sm font-bold transition-colors hover:text-primary" data-testid="link-view-github">
+                  {/*<a href={portfolio.links.github} target="_blank" rel="noreferrer" className="mt-9 flex items-center justify-between border-t border-border pt-5 text-sm font-bold transition-colors hover:text-primary" data-testid="link-view-github">
                     More experiments on GitHub <ArrowUpRight size={15} />
-                  </a>
+                  </a>*/}
                 </div>
               </Reveal>
             </div>
           </div>
         </section>
 
-        <section className="section-wrap py-24 sm:py-32" aria-labelledby="github-title">
-          <div className="relative overflow-hidden rounded-[1.7rem] border border-border bg-[#16383a] p-7 text-[#f3ecd9] sm:p-12">
-            <div className="absolute -right-16 -top-32 h-80 w-80 rounded-full border border-[#f3ecd9]/15" />
-            <div className="absolute -bottom-40 right-16 h-96 w-96 rounded-full border border-[#f3ecd9]/10" />
-            <div className="relative z-10 grid gap-10 md:grid-cols-[1fr_auto] md:items-end">
-              <div>
-                <p className="mono mb-5 text-[10px] uppercase tracking-[.18em] text-[#b9d5c6]">05 / GitHub</p>
-                <h2 id="github-title" className="display max-w-xl text-4xl font-semibold leading-[.98] sm:text-6xl">Building in Public</h2>
-                <p className="mt-6 max-w-lg text-sm leading-7 text-[#c6d4c9]">Small utilities, half-formed ideas, and the occasional deep dive live in public. Browse around if you like seeing how things are put together.</p>
+        <section className="section-wrap py-24 sm:py-32" aria-labelledby="playground-title">
+          <Reveal>
+            <motion.div
+              layout
+              className="relative overflow-hidden rounded-[1.7rem] border border-border bg-[#16383a] text-[#f3ecd9] shadow-[0_24px_70px_rgba(12,40,42,0.12)]"
+              transition={{ layout: { duration: 0.45, ease: [0.22, 0.8, 0.28, 1] } }}
+            >
+              <div className="pointer-events-none absolute -right-16 -top-32 h-80 w-80 rounded-full border border-[#f3ecd9]/15" />
+              <div className="pointer-events-none absolute -bottom-40 right-16 h-96 w-96 rounded-full border border-[#f3ecd9]/10" />
+              <div className="pointer-events-none absolute left-8 top-8 h-2 w-2 rounded-full border border-[#f3ecd9]/40">
+                <span className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#e99a67]" />
               </div>
-              <a href={portfolio.links.github} target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-3 rounded-full bg-[#f3ecd9] px-5 py-3.5 text-sm font-bold text-[#16383a] transition-transform hover:-translate-y-1" data-testid="link-github-profile">
-                <Github size={17} /> Visit GitHub <ArrowUpRight size={15} />
-              </a>
-            </div>
-          </div>
+
+              <AnimatePresence mode="wait" initial={false}>
+                {!gameStarted ? (
+                  <motion.div key="hunt-intro" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="relative z-10 grid gap-10 p-7 sm:p-12 md:grid-cols-[1fr_auto] md:items-end">
+                    <div>
+                      <p className="mono mb-5 text-[10px] uppercase tracking-[.18em] text-[#b9d5c6]">05 / Playground</p>
+                      <h2 id="playground-title" className="display max-w-2xl text-4xl font-semibold leading-[.98] sm:text-6xl">
+                        Something&apos;s broken. <span className="italic text-[#e9a06f]">Can you find it?</span>
+                      </h2>
+                      <p className="mt-6 max-w-lg text-sm leading-7 text-[#c6d4c9]">Five visual bugs are hiding inside tiny product interfaces. No code to read — just inspect the UI and click what looks wrong.</p>
+                      <p className="mono mt-5 text-[9px] uppercase tracking-[.16em] text-[#9db9ac]">5 bugs · about 45 seconds</p>
+                    </div>
+                    <button type="button" onClick={() => { setGameStarted(true); setGameIndex(0); setGameResult(null); setGameFinished(false); }} className="group inline-flex w-fit items-center gap-3 rounded-full bg-[#f3ecd9] px-5 py-3.5 text-sm font-bold text-[#16383a] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                      <Search size={17} /> Start bug hunt <ArrowUpRight size={15} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </button>
+                  </motion.div>
+                ) : gameFinished ? (
+                  <motion.div key="hunt-finished" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="relative z-10 flex min-h-[390px] flex-col items-center justify-center p-7 text-center sm:p-12">
+                    <span className="mono text-[10px] uppercase tracking-[.18em] text-[#b9d5c6]">Bug hunt complete</span>
+                    <div className="mt-5 grid h-14 w-14 place-items-center rounded-full border border-[#f3ecd9]/20 bg-[#f3ecd9]/10"><Check size={24} /></div>
+                    <h2 className="display mt-6 text-4xl font-semibold sm:text-5xl">You found all the bugs.</h2>
+                    <p className="mt-3 text-sm text-[#c6d4c9]">Nice work — every hidden UI bug was found.</p>
+                    <div className="mt-8 flex flex-wrap justify-center gap-3">
+                      <button type="button" onClick={() => { setGameIndex(0); setGameResult(null); setGameFinished(false); }} className="rounded-full bg-[#f3ecd9] px-5 py-3 text-xs font-bold text-[#16383a] transition-transform hover:-translate-y-0.5">Play again</button>
+                      <a href="#contact" className="inline-flex items-center gap-2 rounded-full border border-[#f3ecd9]/25 px-5 py-3 text-xs font-bold transition-colors hover:bg-[#f3ecd9]/10">Continue <ArrowDown size={14} /></a>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div key={`hunt-${gameIndex}`} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -18 }} transition={{ duration: 0.28 }} className="relative z-10 p-7 sm:p-10">
+                    <div className="flex flex-wrap items-start justify-between gap-5">
+                      <div>
+                        <p className="mono text-[10px] uppercase tracking-[.18em] text-[#b9d5c6]">05 / 404: Bug Hunt</p>
+                        <h2 id="playground-title" className="display mt-3 text-3xl font-semibold sm:text-4xl">{BUG_HUNT_SCENES[gameIndex].title}</h2>
+                        <p className="mt-2 text-sm text-[#b9d5c6]">{BUG_HUNT_SCENES[gameIndex].hint}</p>
+                      </div>
+                      <div className="text-right"><p className="mono text-[9px] uppercase tracking-[.16em] text-[#9db9ac]">Bug</p><p className="display mt-1 text-2xl font-semibold">{String(gameIndex + 1).padStart(2, '0')} / {String(BUG_HUNT_SCENES.length).padStart(2, '0')}</p></div>
+                    </div>
+
+                    <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_230px]">
+                      <div className="rounded-[1.4rem] border border-[#f3ecd9]/15 bg-[#f3ecd9] p-3 text-[#173c3d] shadow-2xl shadow-black/10 sm:p-4">
+                        <div onClick={handleWrongBugGuess} className="overflow-hidden rounded-xl border border-[#173c3d]/15 bg-[#fffdf7]">
+                          <div className="flex items-center justify-between border-b border-[#173c3d]/10 px-4 py-3">
+                            <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#e99a67]" /><span className="mono text-[9px] font-bold uppercase tracking-[.12em]">Tiny SaaS</span></div>
+                            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#173c3d]/5 text-[9px] font-bold">SA</div>
+                          </div>
+
+                          {gameIndex === 0 && (
+                            <div className="grid gap-4 p-5 sm:grid-cols-[1fr_180px]">
+                              <div><p className="text-xs text-[#173c3d]/55">Order #1048</p><h3 className="mt-1 text-lg font-bold">Checkout summary</h3><div className="mt-5 space-y-3 text-xs"><div className="flex justify-between"><span>Starter plan</span><span>$24.00</span></div><div className="flex justify-between"><span>Tax</span><span>$3.12</span></div></div></div>
+                              <button type="button" onClick={handleBugFound} className={`rounded-xl border p-4 text-left transition-all border-[#173c3d]/15 bg-[#173c3d]/[0.03]`}><p className="text-[10px] uppercase tracking-wider text-[#173c3d]/50">Total due</p><p className="mt-2 text-3xl font-bold">$NaN</p><p className="mt-4 text-[10px]">Pay now →</p></button>
+                            </div>
+                          )}
+
+                          {gameIndex === 1 && (
+                            <div className="grid min-h-[230px] grid-cols-[150px_1fr]">
+                              <div className="border-r border-[#173c3d]/10 p-4"><p className="mb-4 text-xs font-bold">Workspace</p>{['Overview','Messages','Customers'].map(x => <div key={x} className="mb-2 rounded-lg px-3 py-2 text-[11px]">{x}</div>)}</div>
+                              <div className="p-5"><div className="flex items-center justify-between"><div><p className="text-xs text-[#173c3d]/55">Good morning</p><h3 className="text-lg font-bold">Inbox</h3></div><button type="button" onClick={handleBugFound} className={`relative grid h-10 w-10 place-items-center rounded-full border border-[#173c3d]/15`}><Mail size={16}/><span className="absolute -right-2 -top-2 rounded-full bg-[#e99a67] px-1.5 py-0.5 text-[9px] font-bold">-3</span></button></div><div className="mt-6 space-y-2">{['Payment question','Account access','Feature request'].map(x => <div key={x} className="rounded-lg border border-[#173c3d]/10 p-3 text-xs">{x}</div>)}</div></div>
+                            </div>
+                          )}
+
+                          {gameIndex === 2 && (
+                            <div className="p-5"><p className="text-xs text-[#173c3d]/55">Weekly target</p><div className="mt-1 flex items-end justify-between"><h3 className="text-lg font-bold">Onboarding progress</h3><span className="text-2xl font-bold">82%</span></div><button type="button" onClick={handleBugFound} className={`mt-6 block w-full rounded-full border p-1 transition-all border-transparent`}><span className="block h-4 w-[18%] rounded-full bg-[#173c3d]" /></button><div className="mt-7 grid grid-cols-3 gap-3">{['Invited 48','Active 39','Pending 9'].map(x => <div key={x} className="rounded-lg bg-[#173c3d]/5 p-4 text-xs font-semibold">{x}</div>)}</div></div>
+                          )}
+
+                          {gameIndex === 3 && (
+                            <div className="p-5"><p className="text-xs text-[#173c3d]/55">Admin console</p><h3 className="mt-1 text-lg font-bold">Where do you want to go?</h3><div className="mt-6 grid gap-3 sm:grid-cols-2">{['Dashboard','Analytics','Customers'].map(x => <button key={x} type="button" onClick={handleWrongBugGuess} className="rounded-xl border border-[#173c3d]/10 p-4 text-left text-xs font-semibold hover:border-[#173c3d]/30">{x} <span className="float-right">→</span></button>)}<button type="button" onClick={handleBugFound} className={`rounded-xl border p-4 text-left text-xs font-semibold transition-all border-[#173c3d]/10`}>Delete account <span className="float-right">→</span></button></div></div>
+                          )}
+
+                          {gameIndex === 4 && (
+                            <div className="p-5"><div className="flex items-center gap-3"><span className="h-3 w-3 rounded-full bg-emerald-500"/><div><p className="text-xs text-[#173c3d]/55">Production</p><h3 className="text-lg font-bold">All systems operational</h3></div></div><div className="mt-7 rounded-xl border border-[#173c3d]/10 p-4"><div className="flex items-center justify-between"><span className="text-xs font-semibold">API service</span><span className="text-[10px]">Healthy</span></div></div><button type="button" onClick={handleBugFound} className={`mt-4 w-full rounded-xl border p-4 text-left transition-all border-red-300 bg-red-50`}><p className="text-xs font-bold text-red-700">Critical outage detected</p><p className="mt-1 text-[10px] text-red-600">Restart production immediately →</p></button></div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col justify-between rounded-2xl border border-[#f3ecd9]/15 bg-[#f3ecd9]/[0.04] p-5">
+                        <div><p className="mono text-[9px] uppercase tracking-[.15em] text-[#9db9ac]">Mission</p><p className="mt-3 text-sm font-semibold leading-6">Click the part of the interface that looks broken.</p><AnimatePresence mode="wait">{gameResult === 'wrong' ? <motion.p key="wrong" initial={{opacity:0,y:4}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="mt-5 text-xs text-[#e9a06f]">Not quite — try another part of the interface.</motion.p> : gameResult === 'correct' ? <motion.div key="found" initial={{opacity:0,y:5}} animate={{opacity:1,y:0}} className="mt-5 border-t border-[#f3ecd9]/15 pt-4"><p className="flex items-center gap-2 text-xs font-bold"><Check size={13}/> Bug squashed</p><p className="mt-2 text-xs leading-5 text-[#b9d5c6]">{BUG_HUNT_SCENES[gameIndex].explanation}</p></motion.div> : null}</AnimatePresence></div>
+                        <div className="mt-7"><div className="mb-4 flex items-center justify-between border-t border-[#f3ecd9]/15 pt-4"><span className="mono text-[9px] uppercase tracking-[.15em] text-[#9db9ac]">Progress</span><span className="mono text-[10px] font-bold">{gameIndex + (gameResult === 'correct' ? 1 : 0)} / {BUG_HUNT_SCENES.length}</span></div>{gameResult === 'correct' ? <button type="button" onClick={() => { if (gameIndex === BUG_HUNT_SCENES.length - 1) setGameFinished(true); else { setGameIndex((i) => i + 1); setGameResult(null); } }} className="flex w-full items-center justify-between rounded-full bg-[#f3ecd9] px-4 py-3 text-xs font-bold text-[#16383a] transition-transform hover:-translate-y-0.5">{gameIndex === BUG_HUNT_SCENES.length - 1 ? 'See result' : 'Next bug'} <ArrowUpRight size={14}/></button> : <button type="button" onClick={() => { setGameStarted(false); setGameResult(null); }} className="text-[10px] font-bold uppercase tracking-[.12em] text-[#9db9ac] transition-colors hover:text-[#f3ecd9]">Exit hunt</button>}</div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </Reveal>
         </section>
 
         <section id="contact" className="relative border-t border-border/70 scroll-mt-24 py-24 sm:py-32" aria-labelledby="contact-title">
@@ -1868,8 +2035,8 @@ function App() {
               {sent ? (
                 <div className="flex min-h-[390px] flex-col items-center justify-center rounded-[1.5rem] border border-primary/30 bg-primary/5 p-8 text-center">
                   <span className="grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground"><Check size={24} /></span>
-                  <h3 className="display mt-6 text-3xl font-semibold">Message queued.</h3>
-                  <p className="mt-3 max-w-sm text-sm leading-7 text-muted-foreground">Thanks, {formState.name.split(' ')[0] || 'there'}. This demo form is ready to connect to your preferred inbox.</p>
+                  <h3 className="display mt-6 text-3xl font-semibold">Message sent.</h3>
+                  <p className="mt-3 max-w-sm text-sm leading-7 text-muted-foreground">Thanks, {formState.name.split(' ')[0] || 'there'}. Your message has been delivered — I&apos;ll get back to you soon.</p>
                   <button type="button" onClick={() => { setSent(false); setFormState({ name: '', email: '', message: '' }); }} className="mt-7 text-sm font-bold text-primary underline underline-offset-4" data-testid="button-send-another">Send another note</button>
                 </div>
               ) : (
@@ -1889,9 +2056,9 @@ function App() {
                     <textarea required value={formState.message} onChange={(event) => setFormState({ ...formState, message: event.target.value })} className="min-h-36 resize-y rounded-xl border border-input bg-background p-4 text-sm font-normal leading-7 transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none" placeholder="A sentence or two is plenty." data-testid="textarea-contact-message" />
                   </label>
                   {formError ? <p className="mt-4 text-xs font-semibold text-destructive" role="alert" data-testid="status-form-error">{formError}</p> : null}
-                  <button type="submit" className="mt-7 inline-flex items-center gap-3 rounded-full bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5" data-testid="button-submit-contact">
-                    Send the note <Send size={15} />
-                  </button>
+                  <button type="submit" disabled={isSubmitting} className="mt-7 inline-flex items-center gap-3 rounded-full bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0" data-testid="button-submit-contact">
+                     {isSubmitting ? 'Sending...' : 'Send the note'} <Send size={15} />
+                   </button>
                 </form>
               )}
             </Reveal>
