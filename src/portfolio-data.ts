@@ -262,7 +262,7 @@ export const portfolio = {
     },
     {
       period: 'July 2025 — August 2025',
-      role: 'VATP Intern',
+      role: 'VAPT Intern',
       place: 'NECOP · Internship',
       text: 'Worked with security assessment tools and practical vulnerability testing, including Nmap, Burp Suite, and Nessus.',
     },
